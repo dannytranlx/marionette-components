@@ -1,0 +1,8 @@
+.modal {
+  width: 450px; }
+  .modal header {
+    background-color: blue; }
+  .modal content {
+    background-color: blue; }
+  .modal footer {
+    background-color: blue; }

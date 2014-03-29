@@ -25,7 +25,7 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         banner: '/*!\n' +
             ' * Marionette Components v<%= pkg.version %> (<%= pkg.homepage %>)\n' +
-            ' * Copyright 2014-<%= grunt.template.today("yyyy") %> <%= pkg.author %>\n' +
+            ' * Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author %>\n' +
             ' * Licensed under <%= pkg.license.type %> (<%= pkg.license.url %>)\n' +
             ' */\n',
         // Task configuration.
@@ -48,13 +48,13 @@ module.exports = function(grunt) {
                 jshintrc: 'js/.jshintrc'
             },
             src: {
-                src: 'js/*.js'
+                src: 'js/**/*.js'
             },
             test: {
-                src: 'js/tests/unit/*.js'
+                src: 'js/tests/unit/**/*.js'
             },
             assets: {
-                src: 'docs/assets/js/_src/*.js'
+                src: 'docs/assets/js/_src/**/*.js'
             }
         },
 
@@ -81,7 +81,7 @@ module.exports = function(grunt) {
                 options: {
                     banner: '<%= banner %>'
                 },
-                src:  'dist/js/<%= pkg.name %>.js',
+                src: 'dist/js/<%= pkg.name %>.js',
                 dest: 'dist/js/<%= pkg.name %>.min.js'
             },
             docsJs: {
@@ -98,37 +98,44 @@ module.exports = function(grunt) {
 
         sass: {
             dist: {
-                files: [{
-                    style: 'compressed',
-                    unixNewlines: true,
-                    expand: false,
-                    cwd: 'scss',
-                    src: ['**/*.scss'],
-                    dest: 'dist/css',
-                    ext: '.min.css'
-                }, {
-                    style: 'expanded',
-                    unixNewlines: true,
-                    banner: '<%= banner %>',
-                    expand: true,
-                    cwd: 'scss',
-                    src: ['**/*.scss'],
-                    dest: 'dist/css',
-                    ext: '.css'
-                }]
+                style: 'compressed',
+                sourcemap: true,
+                unixNewlines: true,
+                expand: true,
+                cwd: 'scss',
+                src: ['*.scss'],
+                dest: 'dist/css',
+                ext: '.min.css'
+            },
+            src: {
+                style: 'expanded',
+                unixNewlines: true,
+                banner: '<%= banner %>',
+                expand: true,
+                cwd: 'scss',
+                src: ['*.scss'],
+                dest: 'dist/css',
+                ext: '.css'
             }
         },
 
         copy: {
             docs: {
-                expand: true,
-                cwd: './dist',
-                src: [
-                    '{css,js}/*.min.*',
-                    'css/*.map',
-                    'fonts/*'
-                ],
-                dest: 'docs/dist'
+                files: [{
+                    expand: true,
+                    cwd: './dist',
+                    src: [
+                        '{css,js}/*',
+                        'fonts/*'
+                    ],
+                    dest: 'docs/dist'
+                }, {
+                    expand: false,
+                    src: [
+                        'bower_components/requirejs/require.js'
+                    ],
+                    dest: 'docs/assets/js/require.js'
+                }]
             }
         },
 
@@ -162,9 +169,24 @@ module.exports = function(grunt) {
         },
 
         watch: {
-            src: {
-                files: '<%= jshint.src.src %>',
-                tasks: ['jshint:src']
+            options: {
+                livereload: true,
+            },
+            js: {
+                files: [
+                    '<%= jshint.src.src %>',
+                    'js/templates/**/*.hbs',
+                    'docs/assets/js/_src/**/*.js'
+                ],
+                tasks: ['jshint:src', 'dist']
+            },
+            jekyll: {
+                files: [
+                    'docs/**/*',
+                    '!docs/dist/**/*',
+                    '!docs/assets/js/**/*.{js,frag}'
+                ],
+                tasks: ['jekyll', 'copy:docs']
             },
             test: {
                 files: '<%= jshint.test.src %>',
@@ -172,7 +194,14 @@ module.exports = function(grunt) {
             },
             scss: {
                 files: 'scss/**/*.scss',
-                tasks: 'sass'
+                tasks: 'dist'
+            },
+
+            grunt: {
+                files: [
+                    'Gruntfile.js'
+                ],
+                tasks: ['dist']
             }
         },
 
@@ -193,15 +222,27 @@ module.exports = function(grunt) {
             }
         },
 
+        concat: {
+            bootstrap: {
+                options: {
+                    banner: 'define(["jquery"], function(jQuery){',
+                    footer: ' return jQuery; });'
+                },
+                src: [
+                    'bower_components/bootstrap/dist/js/bootstrap.js'
+                ],
+                dest: 'docs/assets/js/bootstrap.js'
+            }
+        },
+
         requirejs: {
             minified: {
-
                 options: {
                     almond: true,
                     include: ['js/main'],
-                    mainConfigFile: "js/config.js",
-                    name: "bower_components/almond/almond",
-                    out: "dist/js/<%= pkg.name %>.min.js",
+                    mainConfigFile: 'js/config.js',
+                    name: 'bower_components/almond/almond',
+                    out: 'dist/js/<%= pkg.name %>.min.js',
                     optimize: 'uglify2',
                     wrap: {
                         startFile: 'js/start.js.frag',
@@ -217,16 +258,50 @@ module.exports = function(grunt) {
                 options: {
                     almond: true,
                     include: ['js/main'],
-                    mainConfigFile: "js/config.js",
-                    name: "bower_components/almond/almond",
-                    out: "dist/js/<%= pkg.name %>.js",
+                    mainConfigFile: 'js/config.js',
+                    name: 'bower_components/almond/almond',
+                    out: 'dist/js/<%= pkg.name %>.js',
                     wrap: {
                         startFile: 'js/start.js.frag',
                         endFile: 'js/end.js.frag'
                     },
                     optimize: 'none'
                 }
-            }
+            },
+
+            docs: {
+                options: {
+                    almond: true,
+                    include: ['docs/assets/js/_src/application'],
+                    mainConfigFile: 'js/config.js',
+                    name: 'bower_components/almond/almond',
+                    out: 'docs/assets/js/docs.min.js',
+                    optimize: 'uglify2',
+                    wrap: {
+                        startFile: 'docs/assets/js/_src/start.js.frag',
+                        endFile: 'docs/assets/js/_src/end.js.frag'
+                    },
+
+                    generateSourceMaps: true,
+                    preserveLicenseComments: false,
+                }
+            },
+
+
+            docs_src: {
+                options: {
+                    almond: true,
+                    include: ['docs/assets/js/_src/application'],
+                    mainConfigFile: 'js/config.js',
+                    name: 'bower_components/almond/almond',
+                    out: 'docs/assets/js/docs.js',
+                    optimize: 'none',
+                    wrap: {
+                        startFile: 'docs/assets/js/_src/start.js.frag',
+                        endFile: 'docs/assets/js/_src/end.js.frag'
+                    }
+                }
+            },
         }
     });
 
@@ -255,16 +330,18 @@ module.exports = function(grunt) {
     grunt.registerTask('validate-html', ['jekyll', 'validation']);
 
     // JS distribution task.
-    grunt.registerTask('dist-js', ['requirejs']);
+    grunt.registerTask('dist-js', ['concat:bootstrap', 'requirejs']);
 
     // CSS distribution task.
     grunt.registerTask('dist-css', ['sass']);
 
     // Full distribution task.
-    grunt.registerTask('dist', ['clean', 'dist-css', 'dist-js', 'copy:docs']);
+    grunt.registerTask('dist', ['clean', 'dist-css', 'dist-js', 'copy:docs', 'jekyll']);
 
     // Default task.
     grunt.registerTask('default', ['test', 'dist']);
+
+    grunt.registerTask('dev', ['connect', 'watch']);
 
     // Version numbering task.
     // grunt change-version-number --oldver=A.B.C --newver=X.Y.Z

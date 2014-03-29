@@ -1,5 +1,9 @@
-function($) {
-
+define([
+    'jquery',
+    'docs/assets/js/bootstrap'
+], function(
+    $
+) {
     $(function() {
 
         // IE10 viewport hack for Surface/desktop Windows 8 bug
@@ -89,6 +93,5 @@ function($) {
                     btn.button('reset')
                 }, 3000)
             })
-    })
-
-}(jQuery);
+    });
+})
