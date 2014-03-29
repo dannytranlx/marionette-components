@@ -8,5 +8,10 @@
   "eqnull"   : true,
   "expr"     : true,
   "laxbreak" : true,
-  "validthis": true
+  "validthis": true,
+  "globals": {
+    "require"   : true,
+    "requirejs"   : true,
+    "define"    : true
+  }
 }

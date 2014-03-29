@@ -76,23 +76,12 @@ module.exports = function(grunt) {
             }
         },
 
-        concat: {
-            options: {
-                banner: '<%= banner %>',
-                stripBanners: false
-            },
-            components: {
-                src: [],
-                dest: 'dist/js/<%= pkg.name %>.js'
-            }
-        },
-
         uglify: {
             components: {
                 options: {
                     banner: '<%= banner %>'
                 },
-                src: '<%= concat.components.dest %>',
+                src:  'dist/js/<%= pkg.name %>.js',
                 dest: 'dist/js/<%= pkg.name %>.min.js'
             },
             docsJs: {
@@ -112,10 +101,18 @@ module.exports = function(grunt) {
                 files: [{
                     style: 'compressed',
                     unixNewlines: true,
+                    expand: false,
+                    cwd: 'scss',
+                    src: ['**/*.scss'],
+                    dest: 'dist/css',
+                    ext: '.min.css'
+                }, {
+                    style: 'expanded',
+                    unixNewlines: true,
                     banner: '<%= banner %>',
                     expand: true,
                     cwd: 'scss',
-                    src: ['*.scss'],
+                    src: ['**/*.scss'],
                     dest: 'dist/css',
                     ext: '.css'
                 }]
@@ -167,15 +164,15 @@ module.exports = function(grunt) {
         watch: {
             src: {
                 files: '<%= jshint.src.src %>',
-                tasks: ['jshint:src', 'qunit']
+                tasks: ['jshint:src']
             },
             test: {
                 files: '<%= jshint.test.src %>',
-                tasks: ['jshint:test', 'qunit']
+                tasks: ['jshint:test']
             },
-            less: {
-                files: 'less/*.less',
-                tasks: 'less'
+            scss: {
+                files: 'scss/**/*.scss',
+                tasks: 'sass'
             }
         },
 
@@ -193,6 +190,42 @@ module.exports = function(grunt) {
         exec: {
             npmUpdate: {
                 command: 'npm update'
+            }
+        },
+
+        requirejs: {
+            minified: {
+
+                options: {
+                    almond: true,
+                    include: ['js/main'],
+                    mainConfigFile: "js/config.js",
+                    name: "bower_components/almond/almond",
+                    out: "dist/js/<%= pkg.name %>.min.js",
+                    optimize: 'uglify2',
+                    wrap: {
+                        startFile: 'js/start.js.frag',
+                        endFile: 'js/end.js.frag'
+                    },
+
+                    generateSourceMaps: true,
+                    preserveLicenseComments: false,
+                }
+            },
+
+            source: {
+                options: {
+                    almond: true,
+                    include: ['js/main'],
+                    mainConfigFile: "js/config.js",
+                    name: "bower_components/almond/almond",
+                    out: "dist/js/<%= pkg.name %>.js",
+                    wrap: {
+                        startFile: 'js/start.js.frag',
+                        endFile: 'js/end.js.frag'
+                    },
+                    optimize: 'none'
+                }
             }
         }
     });
@@ -222,7 +255,7 @@ module.exports = function(grunt) {
     grunt.registerTask('validate-html', ['jekyll', 'validation']);
 
     // JS distribution task.
-    grunt.registerTask('dist-js', ['concat', 'uglify']);
+    grunt.registerTask('dist-js', ['requirejs']);
 
     // CSS distribution task.
     grunt.registerTask('dist-css', ['sass']);
