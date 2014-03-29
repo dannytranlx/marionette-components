@@ -1,12 +1,14 @@
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
+.bowerrc
 
-# Dependency directory
-# Deployed apps should consider commenting this line out:
-# see https://npmjs.org/doc/faq.html#Should-I-check-my-node_modules-folder-into-git
+# Folders to ignore
 node_modules
+bower_components
 
 
 ###SASS###
 
 .sass-cache
+
+_site

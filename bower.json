@@ -2,12 +2,10 @@
   "name": "marionette-components",
   "version": "0.0.0",
   "authors": [
-    "Marc-Antoine Lemieux <marc@marcantoinelemieux.com>"
+    "Marc-Antoine Lemieux <marc@marcantoinelemieux.com>",
+    "Maxime Gibeau <info@maxjbo.com>"
   ],
   "main": "index.js",
-  "moduleType": [
-    "amd"
-  ],
   "license": "MIT",
   "ignore": [
     "**/.*",
