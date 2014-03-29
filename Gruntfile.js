@@ -225,8 +225,8 @@ module.exports = function(grunt) {
         concat: {
             bootstrap: {
                 options: {
-                    banner: 'define(["jquery"], function(jQuery){',
-                    footer: ' return jQuery; });'
+                    banner: 'define(["jquery"], function(jQuery){\n',
+                    footer: '\n return jQuery; \n});'
                 },
                 src: [
                     'bower_components/bootstrap/dist/js/bootstrap.js'

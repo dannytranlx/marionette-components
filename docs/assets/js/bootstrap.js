@@ -1,4 +1,5 @@
-define(["jquery"], function(jQuery){/*!
+define(["jquery"], function(jQuery){
+/*!
  * Bootstrap v3.1.1 (http://getbootstrap.com)
  * Copyright 2011-2014 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
@@ -1949,4 +1950,6 @@ if (typeof jQuery === 'undefined') { throw new Error('Bootstrap\'s JavaScript re
   })
 
 }(jQuery);
- return jQuery; });
+
+ return jQuery; 
+});
