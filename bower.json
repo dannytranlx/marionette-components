@@ -1,0 +1,19 @@
+{
+  "name": "marionette-components",
+  "version": "0.0.0",
+  "authors": [
+    "Marc-Antoine Lemieux <marc@marcantoinelemieux.com>"
+  ],
+  "main": "index.js",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

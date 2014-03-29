@@ -1,0 +1,11 @@
+{
+  "name": "marionette-components",
+  "version": "0.0.0",
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt-contrib-requirejs": "~0.4.3",
+    "grunt-contrib-sass": "~0.7.3",
+    "grunt": "~0.4.4"
+  }
+}
