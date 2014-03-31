@@ -33,16 +33,6 @@ module.exports = function(grunt) {
             dist: ['dist', 'docs/dist']
         },
 
-        gitclone: {
-            clone: {
-                options: {
-                    repository: 'git@github.com:marionette-components/marionette-components.github.io.git',
-                    branch: 'master',
-                    directory: '_site'
-                }
-            }
-        },
-
         jshint: {
             options: {
                 jshintrc: 'js/.jshintrc'
@@ -183,10 +173,10 @@ module.exports = function(grunt) {
             jekyll: {
                 files: [
                     'docs/**/*',
-                    '!docs/dist/**/*',
+                    '!docs/dist/',
                     '!docs/assets/js/**/*.{js,frag}'
                 ],
-                tasks: ['jekyll', 'copy:docs']
+                tasks: ['jekyll']
             },
             test: {
                 files: '<%= jshint.test.src %>',
@@ -306,6 +296,15 @@ module.exports = function(grunt) {
                     }
                 }
             },
+
+            'gh-pages': {
+                options: {
+                    base: '_site',
+                    repo: 'git@github.com:marionette-components/marionette-components.github.io.git',
+                    branch: 'master'
+                },
+                src: ['**']
+            }
         }
     });
 
@@ -315,8 +314,6 @@ module.exports = function(grunt) {
         scope: 'devDependencies'
     });
     require('time-grunt')(grunt);
-
-    grunt.registerTask('init', ['gitclone:clone']);
 
     // Test task.
     var testSubtasks = [];
@@ -347,6 +344,8 @@ module.exports = function(grunt) {
     grunt.registerTask('default', ['test', 'dist']);
 
     grunt.registerTask('dev', ['connect', 'watch']);
+
+    grunt.registerTask('release', ['gh-pages']);
 
     // Version numbering task.
     // grunt change-version-number --oldver=A.B.C --newver=X.Y.Z

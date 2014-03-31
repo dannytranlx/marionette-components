@@ -21512,6 +21512,7 @@ define('components/modal/views/modal-header-view',[
         }
     });
 });
+
 define('components/modal/views/modal-html-content-view',[
     'underscore',
     'marionette'
@@ -21525,7 +21526,7 @@ define('components/modal/views/modal-html-content-view',[
             return Marionette.getOption(this, 'content');
         },
 
-        initialize: function(){
+        initialize: function() {
             _.bindAll(this, 'template');
         }
     });
@@ -21926,6 +21927,7 @@ define('components/modal/views/modal-buttons-footer-view',[
         }
     });
 });
+
 define('components/modal/modal',[
     'underscore',
     'marionette',

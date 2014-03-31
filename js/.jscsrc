@@ -11,7 +11,7 @@
   "disallowTrailingWhitespace": true,
   "requireCamelCaseOrUpperCaseIdentifiers": true,
   "requireLeftStickedOperators": [","],
-  "requireLineFeedAtFileEnd": true,
+  "requireLineFeedAtFileEnd": false,
   "requireRightStickedOperators": ["!"],
   "requireSpaceAfterBinaryOperators": ["+", "-", "/", "*", "=", "==", "===", "!=", "!=="],
   "requireSpaceAfterKeywords": ["if", "else", "for", "while", "do", "switch", "return", "try", "catch"],

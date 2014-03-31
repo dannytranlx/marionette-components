@@ -11,7 +11,7 @@ define([
             return Marionette.getOption(this, 'content');
         },
 
-        initialize: function(){
+        initialize: function() {
             _.bindAll(this, 'template');
         }
     });
