@@ -1,2 +1,2 @@
-    return require('js/main');
+    return require('js/marionette-components');
 }));

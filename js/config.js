@@ -1,7 +1,4 @@
 requirejs.config({
-
-    baseUrl: '../',
-
     paths: {
         backbone: 'bower_components/backbone/backbone',
         'backbone.babysitter': 'bower_components/backbone.babysitter/lib/amd/backbone.babysitter',
@@ -11,6 +8,7 @@ requirejs.config({
         underscore: 'bower_components/underscore/underscore',
         jquery: 'bower_components/jquery/dist/jquery',
         components: 'js/components',
-        templates: 'js/templates'
+        templates: 'js/templates',
+        utils: 'js/utils'
     }
 })

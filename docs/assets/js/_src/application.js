@@ -1,8 +1,10 @@
 define([
     'jquery',
+    'js/marionette-components',
     'docs/assets/js/bootstrap'
 ], function(
-    $
+    $,
+    MarionetteComponents
 ) {
     $(function() {
 
@@ -62,36 +64,32 @@ define([
             $('.bs-top').affix()
         }, 100)
 
-        // tooltip demo
-        $('.tooltip-demo').tooltip({
-            selector: '[data-toggle=tooltip]',
-            container: 'body'
-        })
-
-        $('.tooltip-test').tooltip()
-        $('.popover-test').popover()
-
         $('.bs-docs-navbar').tooltip({
             selector: 'a[data-toggle=tooltip]',
             container: '.bs-docs-navbar .nav'
         })
 
-        // popover demo
-        $('.bs-docs-popover').popover()
+        $('#modalDemo').on('click', function() {
+            var modal = new MarionetteComponents.Modal({
+                headerViewOptions: {
+                    title: 'Confirmation required'
+                },
 
-        // Popover dismiss on next click
-        $('.bs-docs-popover-dismiss').popover({
-            trigger: 'focus'
-        })
+                contentViewOptions: {
+                    content: '<p>Do you want to close this modal?</p>'
+                },
 
-        // button state demo
-        $('#loading-example-btn')
-            .click(function() {
-                var btn = $(this)
-                btn.button('loading')
-                setTimeout(function() {
-                    btn.button('reset')
-                }, 3000)
-            })
+                footerViewOptions: {
+                    primaryActionText: 'Close modal',
+                    secondaryActionText: 'Close modal anyway'
+                },
+
+                onPrimaryClick: function() {
+                    modal.hide();
+                }
+            });
+
+            modal.show();
+        });
     });
-})
+});

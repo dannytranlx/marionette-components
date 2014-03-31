@@ -1,0 +1,11 @@
+{{#if primaryFirst}}
+    <{{primaryTagName}}{{#if primaryClassName}} class="{{primaryClassName}}"{{/if}} data-primary>{{primaryActionText}}</{{primaryTagName}}>
+    {{#if hasSecondary}}
+        <{{secondaryTagName}}{{#if secondaryClassName}} class="{{secondaryClassName}}"{{/if}} data-secondary>{{secondaryActionText}}</{{secondaryTagName}}>
+    {{/if}}
+{{ else }}
+    {{#if hasSecondary}}
+        <{{secondaryTagName}}{{#if secondaryClassName}} class="{{secondaryClassName}}"{{/if}} data-secondary>{{secondaryActionText}}</{{secondaryTagName}}>
+    {{/if}}
+    <{{primaryTagName}}{{#if primaryClassName}} class="{{primaryClassName}}"{{/if}} data-primary>{{primaryActionText}}</{{primaryTagName}}>
+{{/if}}

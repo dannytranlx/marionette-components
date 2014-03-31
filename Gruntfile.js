@@ -239,7 +239,8 @@ module.exports = function(grunt) {
             minified: {
                 options: {
                     almond: true,
-                    include: ['js/main'],
+                    baseUrl: '.',
+                    include: ['js/marionette-components'],
                     mainConfigFile: 'js/config.js',
                     name: 'bower_components/almond/almond',
                     out: 'dist/js/<%= pkg.name %>.min.js',
@@ -257,7 +258,8 @@ module.exports = function(grunt) {
             source: {
                 options: {
                     almond: true,
-                    include: ['js/main'],
+                    baseUrl: '.',
+                    include: ['js/marionette-components'],
                     mainConfigFile: 'js/config.js',
                     name: 'bower_components/almond/almond',
                     out: 'dist/js/<%= pkg.name %>.js',
@@ -272,6 +274,7 @@ module.exports = function(grunt) {
             docs: {
                 options: {
                     almond: true,
+                    baseUrl: '.',
                     include: ['docs/assets/js/_src/application'],
                     mainConfigFile: 'js/config.js',
                     name: 'bower_components/almond/almond',
@@ -291,6 +294,7 @@ module.exports = function(grunt) {
             docs_src: {
                 options: {
                     almond: true,
+                    baseUrl: '.',
                     include: ['docs/assets/js/_src/application'],
                     mainConfigFile: 'js/config.js',
                     name: 'bower_components/almond/almond',
@@ -330,13 +334,14 @@ module.exports = function(grunt) {
     grunt.registerTask('validate-html', ['jekyll', 'validation']);
 
     // JS distribution task.
-    grunt.registerTask('dist-js', ['concat:bootstrap', 'requirejs']);
+    grunt.registerTask('dist-js', ['requirejs:source', 'requirejs:minified']);
+    grunt.registerTask('dist-doc-js', ['concat:bootstrap', 'requirejs:docs_src', 'requirejs:docs']);
 
     // CSS distribution task.
     grunt.registerTask('dist-css', ['sass']);
 
     // Full distribution task.
-    grunt.registerTask('dist', ['clean', 'dist-css', 'dist-js', 'copy:docs', 'jekyll']);
+    grunt.registerTask('dist', ['clean', 'dist-css', 'dist-js', 'copy:docs', 'dist-doc-js', 'jekyll']);
 
     // Default task.
     grunt.registerTask('default', ['test', 'dist']);

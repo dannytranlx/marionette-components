@@ -2,7 +2,7 @@
     if (typeof define === 'function' && define.amd) {
         define([], factory);
     } else {
-        root.MarionetteComponentsDocs = factory();
+        factory();
     }
 }(this, function () {
     'use strict';

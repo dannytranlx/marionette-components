@@ -21365,6 +21365,377 @@ define('hbs',[
 ;
 
 /* START_TEMPLATE */
+define('hbs!templates/modal/modal-no-footer-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
+var t = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers);
+  
+
+
+  return "<div class=\"modal-dialog\">\n    <div class=\"modal-content\">\n        <div class=\"modal-header\">\n            <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>\n            <header>\n            </header>\n            </div>\n        <div class=\"modal-body\">\n        </div>\n    </div>\n</div>";
+  });
+return t;
+});
+/* END_TEMPLATE */
+;
+define('components/modal/views/modal-no-footer-view',[
+    'underscore',
+    'jquery',
+    'marionette',
+    'hbs!templates/modal/modal-no-footer-template'
+], function(
+    _,
+    $,
+    Marionette,
+    ModalNoFooterTemplate
+) {
+    return Marionette.Layout.extend({
+        template: ModalNoFooterTemplate,
+
+        tagName: 'div',
+
+        className: 'modal fade',
+
+        regions:  {
+            header: 'header',
+            content: '.modal-body'
+        },
+
+        ui: {
+            closeButton: 'button[data-dismiss]'
+        },
+
+        events: {
+            'click @ui.closeButton': 'onCloseButtonClick'
+        },
+
+        initialize: function() {
+            _.bindAll(this,
+                'onShown',
+                'onHidden',
+                'onCloseButtonClick',
+                'onModalBackdropClick'
+            );
+
+            this.backdrop = $('<div class="modal-backdrop fade" />');
+
+            this.on('modal:shown', this.onShown);
+            this.on('modal:hidden', this.onHidden);
+        },
+
+        onShown: function() {},
+        onHidden: function() {},
+
+        show: function() {
+            this.$el
+                .addClass('in')
+                .attr('aria-hidden', false);
+
+            this.$el
+                .show()
+                .scrollTop(0);
+
+            this.$el.before(this.backdrop);
+
+            this.backdrop.on('click', this.onModalBackdropClick);
+            this.backdrop.addClass('in')
+
+            this.trigger('modal:shown');
+        },
+
+        hide: function() {
+            this.$el
+                .removeClass('in')
+                .attr('aria-hidden', true)
+                .hide();
+
+            this.backdrop.removeClass('in');
+            this.backdrop.off('click', this.onModalBackdropClick);
+
+            this.backdrop.remove();
+
+            this.trigger('modal:hidden');
+        },
+
+        onCloseButtonClick: function(event) {
+            this.hide();
+
+            event.preventDefault();
+            event.stopPropagation();
+        },
+
+        onModalBackdropClick: function(event) {
+            this.hide();
+
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    });
+});
+
+/* START_TEMPLATE */
+define('hbs!templates/modal/modal-header-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
+var t = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers);
+  var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<h4 class=\"modal-title\">";
+  if (helper = helpers.title) { stack1 = helper.call(depth0, {hash:{}}); }
+  else { helper = (depth0 && depth0.title); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "</h4>";
+  return buffer;
+  });
+return t;
+});
+/* END_TEMPLATE */
+;
+define('components/modal/views/modal-header-view',[
+    'underscore',
+    'marionette',
+    'hbs!templates/modal/modal-header-template'
+], function(
+    _,
+    Marionette,
+    ModalNoFooterTemplate
+) {
+    return Marionette.ItemView.extend({
+        template: ModalNoFooterTemplate,
+        title: '',
+
+        serializeData: function() {
+            return {
+                title: Marionette.getOption(this, 'title')
+            };
+        }
+    });
+});
+define('components/modal/views/modal-html-content-view',[
+    'underscore',
+    'marionette'
+], function(
+    _,
+    Marionette
+) {
+    return Marionette.ItemView.extend({
+        content: '',
+        template: function() {
+            return Marionette.getOption(this, 'content');
+        },
+
+        initialize: function(){
+            _.bindAll(this, 'template');
+        }
+    });
+});
+define('utils/errors',[], function() {
+    return {
+        /**
+         * Throws an error
+         * (taken from Marionette source code)
+         * @param  {String} message description of the error
+         * @param  {String} name    name of the error
+         */
+        throwError: function(message, name) {
+            var error = new Error(message);
+            error.name = name || 'Error';
+            throw error;
+        }
+    };
+});
+define('components/modal/modal-no-footer',[
+    'jquery',
+    'underscore',
+    'marionette',
+    'components/modal/views/modal-no-footer-view',
+    'components/modal/views/modal-header-view',
+    'components/modal/views/modal-html-content-view',
+    'utils/errors'
+], function(
+    $,
+    _,
+    Marionette,
+    ModalNoFooterView,
+    ModalHeaderView,
+    ModalHtmlContentView,
+    ErrorsUtils
+) {
+    return Marionette.Controller.extend({
+        closeOnHidden: true,
+
+        container: 'body',
+
+        modalView: ModalNoFooterView,
+        modalViewOptions: {},
+
+        contentView: ModalHtmlContentView,
+        contentViewOptions: {},
+
+        headerView: ModalHeaderView,
+        headerViewOptions: {},
+
+        initialize: function(options) {
+            _.bindAll(this,
+                'onModalHidden',
+                'onModalShown'
+            );
+        },
+
+        getContainer: function() {
+            var container = Marionette.getOption(this, 'container');
+
+            if (!container) {
+                ErrorsUtils.throwError('A `container` must be specified', 'NoContainerError');
+            }
+
+            return $(container);
+        },
+
+        getModalView: function() {
+            var modalView = Marionette.getOption(this, 'modalView');
+
+            if (!modalView) {
+                ErrorsUtils.throwError('A `modalView` must be specified', 'NoModalViewError');
+            }
+
+            return modalView;
+        },
+
+        buildModalView: function() {
+            var view = this.modalViewInstance;
+
+            if (!view) {
+                var modalViewOptions = Marionette.getOption(this, 'modalViewOptions') || {};
+
+                if (_.isFunction(modalViewOptions)) {
+                    modalViewOptions = modalViewOptions.call(this);
+                }
+
+                var ModalView = this.getModalView();
+
+                view = new ModalView(modalViewOptions);
+
+                this.bindModalViewEvents(view);
+            }
+            return view;
+        },
+
+        getHeaderView: function() {
+            var headerView = Marionette.getOption(this, 'headerView');
+
+            if (!headerView) {
+                ErrorsUtils.throwError('A `headerView` must be specified', 'NoHeaderViewError');
+            }
+
+            return headerView;
+        },
+
+        buildHeaderView: function() {
+            var view = this.headerViewInstance;
+
+            if (!view) {
+                var headerViewOptions = Marionette.getOption(this, 'headerViewOptions');
+
+                if (_.isFunction(headerViewOptions)) {
+                    headerViewOptions = headerViewOptions.call(this);
+                }
+
+                var HeaderView = this.getHeaderView();
+
+                view = new HeaderView(headerViewOptions);
+
+                this.bindHeaderViewEvents(view);
+            }
+            return view;
+        },
+
+        getContentView: function() {
+            var contentView = Marionette.getOption(this, 'contentView');
+
+            if (!contentView) {
+                ErrorsUtils.throwError('A `contentView` must be specified', 'NoContentViewError');
+            }
+
+            return contentView;
+        },
+
+        buildContentView: function() {
+            var view = this.contentViewInstance;
+
+            if (!view) {
+                var contentViewOptions = Marionette.getOption(this, 'contentViewOptions');
+
+                if (_.isFunction(contentViewOptions)) {
+                    contentViewOptions = contentViewOptions.call(this);
+                }
+
+                var ContentView = this.getContentView();
+
+                view = new ContentView(contentViewOptions);
+
+                this.bindContentViewEvents(view);
+            }
+
+            return view;
+        },
+
+        bindModalViewEvents: function(view) {
+            var closeOnHidden = Marionette.getOption(this, 'closeOnHidden');
+
+            if (closeOnHidden) {
+                view.on('modal:hidden', _.bind(this.closeModalOnHide, this));
+            }
+
+            view.on('modal:hidden', _.bind(this.onModalHidden, this));
+            view.on('modal:shown', _.bind(this.onModalShown, this));
+        },
+
+        bindHeaderViewEvents: function() {},
+        bindContentViewEvents: function() {},
+
+        hide: function() {
+            this.modalViewInstance.hide();
+        },
+
+        closeModalOnHide: function() {
+            this.modalViewInstance.close();
+            this.close();
+        },
+
+        onModalHidden: function() {},
+
+        onModalShown: function() {},
+
+        renderModal: function() {
+            if (!this.modalViewInstance) {
+                this.modalViewInstance = this.buildModalView();
+                this.headerViewInstance = this.buildHeaderView();
+                this.contentViewInstance = this.buildContentView();
+
+                this.modalViewInstance.on('render', _.bind(function() {
+                    this.modalViewInstance.header.show(this.headerViewInstance);
+                    this.modalViewInstance.content.show(this.contentViewInstance);
+                }, this));
+            }
+
+            return this.modalViewInstance;
+        },
+
+        show: function() {
+            var view = this.renderModal();
+            view.render();
+
+            var container = this.getContainer();
+            container.append(view.el);
+
+            view.show();
+        }
+    });
+});
+
+/* START_TEMPLATE */
 define('hbs!templates/modal/modal-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
 var t = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
@@ -21372,40 +21743,300 @@ helpers = this.merge(helpers, Handlebars.helpers);
   
 
 
-  return "<header></header>\n<section></section>\n<footer></footer>";
+  return "<div class=\"modal-dialog\">\n    <div class=\"modal-content\">\n        <div class=\"modal-header\">\n            <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>\n            <header>\n            </header>\n        </div>\n        <div class=\"modal-body\">\n        </div>\n        <div class=\"modal-footer\">\n        </div>\n    </div>\n</div>\n";
   });
 return t;
 });
 /* END_TEMPLATE */
 ;
-define('components/modal/modal',[
+define('components/modal/views/modal-view',[
     'underscore',
     'marionette',
+    'components/modal/views/modal-no-footer-view',
     'hbs!templates/modal/modal-template'
 ], function(
     _,
     Marionette,
+    ModalNoFooterView,
     ModalTemplate
 ) {
-    return Marionette.Layout.extend({
+    return ModalNoFooterView.extend({
         template: ModalTemplate,
         className: 'modal',
 
         regions:  {
             header: 'header',
-            content: 'section'
+            content: '.modal-body',
+            footer: '.modal-footer'
+        },
+
+        initialize: function(options) {
+            ModalNoFooterView.prototype.initialize.call(this, options);
         }
     });
 });
 
-define('js/main',[
-    'components/modal/modal'
+/* START_TEMPLATE */
+define('hbs!templates/modal/modal-buttons-footer-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
+var t = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers);
+  var stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
+
+function program1(depth0,data) {
+  
+  var buffer = "", stack1, helper;
+  buffer += "\n    <";
+  if (helper = helpers.primaryTagName) { stack1 = helper.call(depth0, {hash:{}}); }
+  else { helper = (depth0 && depth0.primaryTagName); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
+  buffer += escapeExpression(stack1);
+  stack1 = helpers['if'].call(depth0, (depth0 && depth0.primaryClassName), {hash:{},inverse:self.noop,fn:self.program(2, program2, data)});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += " data-primary>";
+  if (helper = helpers.primaryActionText) { stack1 = helper.call(depth0, {hash:{}}); }
+  else { helper = (depth0 && depth0.primaryActionText); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "</";
+  if (helper = helpers.primaryTagName) { stack1 = helper.call(depth0, {hash:{}}); }
+  else { helper = (depth0 && depth0.primaryTagName); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
+  buffer += escapeExpression(stack1)
+    + ">\n    ";
+  stack1 = helpers['if'].call(depth0, (depth0 && depth0.hasSecondary), {hash:{},inverse:self.noop,fn:self.program(4, program4, data)});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n";
+  return buffer;
+  }
+function program2(depth0,data) {
+  
+  var buffer = "", stack1, helper;
+  buffer += " class=\"";
+  if (helper = helpers.primaryClassName) { stack1 = helper.call(depth0, {hash:{}}); }
+  else { helper = (depth0 && depth0.primaryClassName); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "\"";
+  return buffer;
+  }
+
+function program4(depth0,data) {
+  
+  var buffer = "", stack1, helper;
+  buffer += "\n        <";
+  if (helper = helpers.secondaryTagName) { stack1 = helper.call(depth0, {hash:{}}); }
+  else { helper = (depth0 && depth0.secondaryTagName); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
+  buffer += escapeExpression(stack1);
+  stack1 = helpers['if'].call(depth0, (depth0 && depth0.secondaryClassName), {hash:{},inverse:self.noop,fn:self.program(5, program5, data)});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += " data-secondary>";
+  if (helper = helpers.secondaryActionText) { stack1 = helper.call(depth0, {hash:{}}); }
+  else { helper = (depth0 && depth0.secondaryActionText); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "</";
+  if (helper = helpers.secondaryTagName) { stack1 = helper.call(depth0, {hash:{}}); }
+  else { helper = (depth0 && depth0.secondaryTagName); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
+  buffer += escapeExpression(stack1)
+    + ">\n    ";
+  return buffer;
+  }
+function program5(depth0,data) {
+  
+  var buffer = "", stack1, helper;
+  buffer += " class=\"";
+  if (helper = helpers.secondaryClassName) { stack1 = helper.call(depth0, {hash:{}}); }
+  else { helper = (depth0 && depth0.secondaryClassName); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "\"";
+  return buffer;
+  }
+
+function program7(depth0,data) {
+  
+  var buffer = "", stack1, helper;
+  buffer += "\n    ";
+  stack1 = helpers['if'].call(depth0, (depth0 && depth0.hasSecondary), {hash:{},inverse:self.noop,fn:self.program(4, program4, data)});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n    <";
+  if (helper = helpers.primaryTagName) { stack1 = helper.call(depth0, {hash:{}}); }
+  else { helper = (depth0 && depth0.primaryTagName); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
+  buffer += escapeExpression(stack1);
+  stack1 = helpers['if'].call(depth0, (depth0 && depth0.primaryClassName), {hash:{},inverse:self.noop,fn:self.program(2, program2, data)});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += " data-primary>";
+  if (helper = helpers.primaryActionText) { stack1 = helper.call(depth0, {hash:{}}); }
+  else { helper = (depth0 && depth0.primaryActionText); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "</";
+  if (helper = helpers.primaryTagName) { stack1 = helper.call(depth0, {hash:{}}); }
+  else { helper = (depth0 && depth0.primaryTagName); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
+  buffer += escapeExpression(stack1)
+    + ">\n";
+  return buffer;
+  }
+
+  stack1 = helpers['if'].call(depth0, (depth0 && depth0.primaryFirst), {hash:{},inverse:self.program(7, program7, data),fn:self.program(1, program1, data)});
+  if(stack1 || stack1 === 0) { return stack1; }
+  else { return ''; }
+  });
+return t;
+});
+/* END_TEMPLATE */
+;
+define('components/modal/views/modal-buttons-footer-view',[
+    'underscore',
+    'marionette',
+    'hbs!templates/modal/modal-buttons-footer-template'
 ], function(
-    Modal
+    _,
+    Marionette,
+    ModalButtonsFooterTemplate
+) {
+    return Marionette.ItemView.extend({
+        template: ModalButtonsFooterTemplate,
+
+        ui: {
+            primaryAction: '[data-primary]',
+            secondaryAction: '[data-secondary]',
+        },
+
+        triggers: {
+            'click @ui.primaryAction' : 'modal:primary-click',
+            'click @ui.secondaryAction' : 'modal:secondary-click'
+        },
+
+        primaryActionText: 'OK',
+        primaryTagName: 'button',
+        primaryClassName: 'btn btn-primary',
+        secondaryActionText: 'Close',
+        secondaryTagName: 'button',
+        secondaryClassName: 'btn',
+        primaryFirst: false,
+        hasSecondary: true,
+
+
+        serializeData: function() {
+            return {
+                primaryActionText: Marionette.getOption(this, 'primaryActionText'),
+                primaryTagName: Marionette.getOption(this, 'primaryTagName'),
+                primaryClassName: Marionette.getOption(this, 'primaryClassName'),
+                secondaryActionText: Marionette.getOption(this, 'secondaryActionText'),
+                secondaryTagName: Marionette.getOption(this, 'secondaryTagName'),
+                secondaryClassName: Marionette.getOption(this, 'secondaryClassName'),
+                primaryFirst: Marionette.getOption(this, 'primaryFirst'),
+                hasSecondary: Marionette.getOption(this, 'hasSecondary')
+            };
+        }
+    });
+});
+define('components/modal/modal',[
+    'underscore',
+    'marionette',
+    'components/modal/modal-no-footer',
+    'components/modal/views/modal-view',
+    'components/modal/views/modal-buttons-footer-view',
+    'utils/errors'
+], function(
+    _,
+    Marionette,
+    ModalNoFooter,
+    ModalView,
+    ModalButtonsFooterView,
+    ErrorsUtils
+) {
+    return ModalNoFooter.extend({
+        modalView: ModalView,
+
+        footerView: ModalButtonsFooterView,
+
+        footerViewOptions: {},
+
+        initialize: function(options) {
+            ModalNoFooter.prototype.initialize.call(this, options);
+
+            _.bindAll(this,
+                'onPrimaryClick',
+                'onSecondaryClick'
+            );
+        },
+
+        getFooterView: function() {
+            var footerView = Marionette.getOption(this, 'footerView');
+
+            if (!footerView) {
+                ErrorsUtils.throwError('A `footerView` must be specified', 'NoFooterViewError');
+            }
+
+            return footerView;
+        },
+
+        buildFooterView: function() {
+            var view = this.footerViewInstance;
+            if (!view) {
+                var footerViewOptions = Marionette.getOption(this, 'footerViewOptions');
+                if (_.isFunction(footerViewOptions)) {
+                    footerViewOptions = footerViewOptions.call(this);
+                }
+
+                var FooterView = this.getFooterView();
+
+                view = new FooterView(footerViewOptions);
+                this.bindFooterViewEvents(view);
+            }
+
+
+            return view;
+        },
+
+        bindFooterViewEvents: function(view) {
+            var primaryClickFunction = Marionette.getOption(this, 'onPrimaryClick');
+            var secondaryClickFunction = Marionette.getOption(this, 'onSecondaryClick');
+            var hasSecondary = Marionette.getOption(view, 'hasSecondary');
+
+            view.on('modal:primary-click', primaryClickFunction);
+
+            if (hasSecondary) {
+                view.on('modal:secondary-click', secondaryClickFunction);
+            }
+        },
+
+        onPrimaryClick: function() {},
+
+        onSecondaryClick: function() {
+            this.hide();
+        },
+
+        renderModal: function() {
+            var modalView = ModalNoFooter.prototype.renderModal.call(this);
+            modalView.on('render', _.bind(function() {
+                this.footerViewInstance = this.buildFooterView();
+                modalView.footer.show(this.footerViewInstance);
+            }, this));
+
+            return modalView;
+        },
+    });
+});
+define('js/marionette-components',[
+    'components/modal/modal',
+    'components/modal/modal-no-footer',
+    'components/modal/views/modal-no-footer-view',
+    'components/modal/views/modal-view',
+    'components/modal/views/modal-header-view',
+    'components/modal/views/modal-buttons-footer-view'
+], function(
+    Modal,
+    ModalNoFooter,
+    ModalNoFooterView,
+    ModalView,
+    ModalHeaderView,
+    ModalButtonsFooterView
 ) {
     return {
-        Modal: Modal
+        Modal: Modal,
+        ModalNoFooter: ModalNoFooter,
+        ModalNoFooterView: ModalNoFooterView,
+        ModalView: ModalView,
+        ModalHeaderView: ModalHeaderView,
+        ModalButtonsFooterView: ModalButtonsFooterView
     };
 });
-    return require('js/main');
+    return require('js/marionette-components');
 }));
