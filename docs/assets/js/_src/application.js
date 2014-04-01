@@ -91,5 +91,26 @@ define([
 
             modal.show();
         });
+
+        $('#modalAjaxDemo').on('click', function() {
+            var modal = new MarionetteComponents.ModalAjax({
+                headerViewOptions: {
+                    title: 'Ajax content'
+                },
+
+                footerViewOptions: {
+                    primaryActionText: 'Close modal',
+                    secondaryActionText: 'Close modal anyway'
+                },
+
+                url : '/ajax-demo/',
+
+                onPrimaryClick: function() {
+                    modal.hide();
+                }
+            });
+
+            modal.show();
+        });
     });
 });

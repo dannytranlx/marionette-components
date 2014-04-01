@@ -21564,6 +21564,7 @@ define('components/modal/modal-no-footer',[
     ErrorsUtils
 ) {
     return Marionette.Controller.extend({
+
         closeOnHidden: true,
 
         container: 'body',
@@ -21578,6 +21579,8 @@ define('components/modal/modal-no-footer',[
         headerViewOptions: {},
 
         initialize: function(options) {
+            this.isOpened = false;
+
             _.bindAll(this,
                 'onModalHidden',
                 'onModalShown'
@@ -21697,7 +21700,10 @@ define('components/modal/modal-no-footer',[
         bindContentViewEvents: function() {},
 
         hide: function() {
-            this.modalViewInstance.hide();
+            if (this.isOpened) {
+                this.modalViewInstance.hide();
+                this.isOpened = false;
+            }
         },
 
         closeModalOnHide: function() {
@@ -21725,13 +21731,16 @@ define('components/modal/modal-no-footer',[
         },
 
         show: function() {
-            var view = this.renderModal();
-            view.render();
+            if (!this.isOpened) {
+                var view = this.renderModal();
+                view.render();
 
-            var container = this.getContainer();
-            container.append(view.el);
+                var container = this.getContainer();
+                container.append(view.el);
 
-            view.show();
+                view.show();
+                this.isOpened = true;
+            }
         }
     });
 });
@@ -22016,9 +22025,97 @@ define('components/modal/modal',[
         },
     });
 });
+define('components/modal/modal-ajax-no-footer',[
+    'jquery',
+    'underscore',
+    'marionette',
+    'components/modal/modal-no-footer',
+    'utils/errors'
+], function(
+    $,
+    _,
+    Marionette,
+    ModalNoFooter,
+    ErrorsUtils
+) {
+    return Marionette.Controller.extend({
+        modal: ModalNoFooter,
+
+        type: 'get',
+        data: {},
+
+        initialize: function() {
+            this.isOpened = false;
+        },
+
+        getModal: function() {
+            var modal = Marionette.getOption(this, 'modal');
+
+            if (!modal) {
+                ErrorsUtils.throwError('A `modal` must be specified', 'NoModalError');
+            }
+
+            return modal;
+        },
+
+        show: function() {
+            if (!this.isOpened) {
+                var type = Marionette.getOption(this, 'type');
+                var data = Marionette.getOption(this, 'data');
+                var url = Marionette.getOption(this, 'url');
+
+                if (!url) {
+                    ErrorsUtils.throwError('An `url` must be specified', 'NoUrlError');
+                }
+
+                $.ajax({
+                    type: type,
+                    url: url,
+                    data: data,
+                    dataType: 'html',
+                    success: _.bind(function(content) {
+                        var options = _.extend(this.options, {
+                            contentViewOptions: {
+                                content: content
+                            }
+                        });
+
+                        var Modal = this.getModal();
+
+                        this.modal = new Modal(options);
+
+                        this.modal.show();
+                        this.isOpened = true;
+
+                    }, this)
+                });
+            }
+        },
+
+        hide: function() {
+            if (this.isOpened && this.modal) {
+                this.modal.hide();
+                this.isOpened = false;
+            }
+        }
+    });
+});
+define('components/modal/modal-ajax',[
+    'components/modal/modal-ajax-no-footer',
+    'components/modal/modal'
+], function(
+    ModalAjaxNoFooter,
+    Modal
+) {
+    return ModalAjaxNoFooter.extend({
+        modal: Modal
+    });
+});
 define('js/marionette-components',[
     'components/modal/modal',
     'components/modal/modal-no-footer',
+    'components/modal/modal-ajax',
+    'components/modal/modal-ajax-no-footer',
     'components/modal/views/modal-no-footer-view',
     'components/modal/views/modal-view',
     'components/modal/views/modal-header-view',
@@ -22026,6 +22123,8 @@ define('js/marionette-components',[
 ], function(
     Modal,
     ModalNoFooter,
+    ModalAjax,
+    ModalAjaxNoFooter,
     ModalNoFooterView,
     ModalView,
     ModalHeaderView,
@@ -22034,6 +22133,8 @@ define('js/marionette-components',[
     return {
         Modal: Modal,
         ModalNoFooter: ModalNoFooter,
+        ModalAjax: ModalAjax,
+        ModalAjaxNoFooter: ModalAjaxNoFooter,
         ModalNoFooterView: ModalNoFooterView,
         ModalView: ModalView,
         ModalHeaderView: ModalHeaderView,

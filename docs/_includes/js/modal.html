@@ -45,6 +45,45 @@ $('#modalDemo').on('click', function(){
 
 {% endhighlight %}
 
+  <h3>AJAX Modal</h3>
+  <p></p>
+
+  <div class="bs-example" style="padding-bottom: 24px;">
+    <button class="btn btn-primary btn-lg" id="modalAjaxDemo">
+      Launch modal
+    </button>
+  </div><!-- /example -->
+
+{% highlight html %}
+<!-- Button trigger modal -->
+<button class="btn btn-primary btn-lg" id="modalAjaxDemo">
+  Launch modal
+</button>
+{% endhighlight %}
+{% highlight js %}
+$('#modalAjaxDemo').on('click', function() {
+    var modal = new MarionetteComponents.ModalAjax({
+        headerViewOptions: {
+            title: 'Ajax content'
+        },
+
+        footerViewOptions: {
+            primaryActionText: 'Close modal',
+            secondaryActionText: 'Close modal anyway'
+        },
+
+        url : '/ajax-demo/',
+
+        onPrimaryClick: function() {
+            modal.hide();
+        }
+    });
+
+    modal.show();
+});
+
+{% endhighlight %}
+
   <h2 id="modals-usage">Usage</h2>
   <p>The modal plugin toggles your hidden content on demand, via data attributes or JavaScript. It also adds <code>.modal-open</code> to the <code>&lt;body&gt;</code> to override default scrolling behavior and generates a <code>.modal-backdrop</code> to provide a click area for dismissing shown modals when clicking outside the modal.</p>
 
