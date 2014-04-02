@@ -16,6 +16,7 @@ define([
     ErrorsUtils
 ) {
     return Marionette.Controller.extend({
+
         closeOnHidden: true,
 
         container: 'body',
@@ -30,6 +31,8 @@ define([
         headerViewOptions: {},
 
         initialize: function(options) {
+            this.isOpened = false;
+
             _.bindAll(this,
                 'onModalHidden',
                 'onModalShown'
@@ -149,7 +152,10 @@ define([
         bindContentViewEvents: function() {},
 
         hide: function() {
-            this.modalViewInstance.hide();
+            if (this.isOpened) {
+                this.modalViewInstance.hide();
+                this.isOpened = false;
+            }
         },
 
         closeModalOnHide: function() {
@@ -177,13 +183,16 @@ define([
         },
 
         show: function() {
-            var view = this.renderModal();
-            view.render();
+            if (!this.isOpened) {
+                var view = this.renderModal();
+                view.render();
 
-            var container = this.getContainer();
-            container.append(view.el);
+                var container = this.getContainer();
+                container.append(view.el);
 
-            view.show();
+                view.show();
+                this.isOpened = true;
+            }
         }
     });
 });

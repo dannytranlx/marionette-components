@@ -1,6 +1,8 @@
 define([
     'components/modal/modal',
     'components/modal/modal-no-footer',
+    'components/modal/modal-ajax',
+    'components/modal/modal-ajax-no-footer',
     'components/modal/views/modal-no-footer-view',
     'components/modal/views/modal-view',
     'components/modal/views/modal-header-view',
@@ -8,6 +10,8 @@ define([
 ], function(
     Modal,
     ModalNoFooter,
+    ModalAjax,
+    ModalAjaxNoFooter,
     ModalNoFooterView,
     ModalView,
     ModalHeaderView,
@@ -16,6 +20,8 @@ define([
     return {
         Modal: Modal,
         ModalNoFooter: ModalNoFooter,
+        ModalAjax: ModalAjax,
+        ModalAjaxNoFooter: ModalAjaxNoFooter,
         ModalNoFooterView: ModalNoFooterView,
         ModalView: ModalView,
         ModalHeaderView: ModalHeaderView,
