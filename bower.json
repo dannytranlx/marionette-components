@@ -1,6 +1,6 @@
 {
   "name": "marionette-components",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "authors": [
     "Marc-Antoine Lemieux <marc@marcantoinelemieux.com>",
     "Maxime Gibeau <info@maxjbo.com>"
@@ -15,15 +15,15 @@
     "tests"
   ],
   "dependencies": {
-    "backbone": "1.1.2",
-    "marionette": "1.7.3",
-    "jquery": "1.11.0",
-    "almond": "0.2.9",
-    "require-handlebars-plugin": "0.8.0",
-    "underscore": "1.6.0",
-    "requirejs": "2.1.11"
+    "backbone": "~1.1.2",
+    "marionette": "~1.7.3",
+    "jquery": "~1.11.0",
+    "require-handlebars-plugin": "~0.8.0",
+    "underscore": "~1.6.0",
+    "requirejs": "~2.1.11"
   },
   "devDependencies": {
+    "almond": "~0.2.9",
     "bootstrap": "3.1.1"
   }
 }
