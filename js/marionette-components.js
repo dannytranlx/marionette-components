@@ -1,12 +1,12 @@
 define([
-    'components/modal/modal',
-    'components/modal/modal-no-footer',
-    'components/modal/modal-ajax',
-    'components/modal/modal-ajax-no-footer',
-    'components/modal/views/modal-no-footer-view',
-    'components/modal/views/modal-view',
-    'components/modal/views/modal-header-view',
-    'components/modal/views/modal-buttons-footer-view'
+    'marionette-components/components/modal/modal',
+    'marionette-components/components/modal/modal-no-footer',
+    'marionette-components/components/modal/modal-ajax',
+    'marionette-components/components/modal/modal-ajax-no-footer',
+    'marionette-components/components/modal/views/modal-no-footer-view',
+    'marionette-components/components/modal/views/modal-view',
+    'marionette-components/components/modal/views/modal-header-view',
+    'marionette-components/components/modal/views/modal-buttons-footer-view'
 ], function(
     Modal,
     ModalNoFooter,

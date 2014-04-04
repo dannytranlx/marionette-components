@@ -7,8 +7,6 @@ requirejs.config({
         hbs: 'bower_components/require-handlebars-plugin/hbs',
         underscore: 'bower_components/underscore/underscore',
         jquery: 'bower_components/jquery/dist/jquery',
-        components: 'js/components',
-        templates: 'js/templates',
-        utils: 'js/utils'
+        'marionette-components': '.'
     }
 })

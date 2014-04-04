@@ -1,6 +1,6 @@
 define([
-    'components/modal/modal-ajax-no-footer',
-    'components/modal/modal'
+    'marionette-components/components/modal/modal-ajax-no-footer',
+    'marionette-components/components/modal/modal'
 ], function(
     ModalAjaxNoFooter,
     Modal

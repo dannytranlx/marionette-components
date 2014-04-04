@@ -2,7 +2,7 @@ define([
     'underscore',
     'jquery',
     'marionette',
-    'hbs!templates/modal/modal-no-footer-template'
+    'hbs!marionette-components/templates/modal/modal-no-footer-template'
 ], function(
     _,
     $,
