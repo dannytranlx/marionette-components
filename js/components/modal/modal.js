@@ -1,10 +1,10 @@
 define([
     'underscore',
     'marionette',
-    'components/modal/modal-no-footer',
-    'components/modal/views/modal-view',
-    'components/modal/views/modal-buttons-footer-view',
-    'utils/errors'
+    'marionette-components/components/modal/modal-no-footer',
+    'marionette-components/components/modal/views/modal-view',
+    'marionette-components/components/modal/views/modal-buttons-footer-view',
+    'marionette-components/utils/errors'
 ], function(
     _,
     Marionette,

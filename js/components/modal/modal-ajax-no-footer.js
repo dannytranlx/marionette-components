@@ -2,8 +2,8 @@ define([
     'jquery',
     'underscore',
     'marionette',
-    'components/modal/modal-no-footer',
-    'utils/errors'
+    'marionette-components/components/modal/modal-no-footer',
+    'marionette-components/utils/errors'
 ], function(
     $,
     _,

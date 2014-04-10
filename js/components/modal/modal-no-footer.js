@@ -2,10 +2,10 @@ define([
     'jquery',
     'underscore',
     'marionette',
-    'components/modal/views/modal-no-footer-view',
-    'components/modal/views/modal-header-view',
-    'components/modal/views/modal-html-content-view',
-    'utils/errors'
+    'marionette-components/components/modal/views/modal-no-footer-view',
+    'marionette-components/components/modal/views/modal-header-view',
+    'marionette-components/components/modal/views/modal-html-content-view',
+    'marionette-components/utils/errors'
 ], function(
     $,
     _,
