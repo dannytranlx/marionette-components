@@ -14,11 +14,11 @@ define([
 
         tagName: 'div',
 
-        className: 'modal fade',
+        className: 'mc-modal',
 
         regions:  {
             header: 'header',
-            content: '.modal-body'
+            content: 'section'
         },
 
         ui: {
@@ -37,7 +37,7 @@ define([
                 'onModalBackdropClick'
             );
 
-            this.backdrop = $('<div class="modal-backdrop fade" />');
+            this.backdrop = $('<div class="mc-modal-backdrop" />');
 
             this.on('modal:shown', this.onShown);
             this.on('modal:hidden', this.onHidden);

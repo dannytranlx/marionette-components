@@ -1,13 +1,18 @@
-<div class="modal-dialog">
-    <div class="modal-content">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <header>
-            </header>
-        </div>
-        <div class="modal-body">
-        </div>
-        <div class="modal-footer">
-        </div>
-    </div>
-</div>
+<aside class="mc-modal">
+    <header>
+        {{#if header}}
+            {{header}}
+        {{else}}
+            <button class="close-button">&times;</button>
+            <h4>{{title}}</h4>
+        {{/if}}
+    </header>
+    <section>
+        {{content}}
+    </section>
+    {{#if footer}}
+        <footer>
+            {{footer}}
+        </footer>
+    {{/if}}
+</aside>

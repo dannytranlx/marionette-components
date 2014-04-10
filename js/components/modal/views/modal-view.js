@@ -11,12 +11,12 @@ define([
 ) {
     return ModalNoFooterView.extend({
         template: ModalTemplate,
-        className: 'modal',
+        className: 'mc-modal-dialog',
 
         regions:  {
             header: 'header',
-            content: '.modal-body',
-            footer: '.modal-footer'
+            content: 'section',
+            footer: 'footer'
         },
 
         initialize: function(options) {
