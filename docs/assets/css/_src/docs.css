@@ -1458,3 +1458,8 @@ h1[id] {
   -webkit-box-shadow: 0 0 8px rgba(82,168,236,.6);
           box-shadow: 0 0 8px rgba(82,168,236,.6);
 }
+
+
+.mc-modal {
+    position: relative;
+}

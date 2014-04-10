@@ -11,7 +11,6 @@ define([
 ) {
     return ModalNoFooterView.extend({
         template: ModalTemplate,
-        className: 'mc-modal-dialog',
 
         regions:  {
             header: 'header',

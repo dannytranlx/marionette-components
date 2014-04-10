@@ -13,8 +13,11 @@
 }
 
 .mc-modal {
-    position: relative;
+    position: fixed;
     margin: 2em;
+
+    left: 50%;
+    top: 25%;
 
     @include border-radius($border-radius);
     @include box-shadow(0 0 8px rgba(0, 0, 0, 0.4));

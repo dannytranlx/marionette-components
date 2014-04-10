@@ -12,7 +12,7 @@ define([
     return Marionette.Layout.extend({
         template: ModalNoFooterTemplate,
 
-        tagName: 'div',
+        tagName: 'aside',
 
         className: 'mc-modal',
 
@@ -48,7 +48,6 @@ define([
 
         show: function() {
             this.$el
-                .addClass('in')
                 .attr('aria-hidden', false);
 
             this.$el
@@ -58,18 +57,17 @@ define([
             this.$el.before(this.backdrop);
 
             this.backdrop.on('click', this.onModalBackdropClick);
-            this.backdrop.addClass('in')
+
+            this.center();
 
             this.trigger('modal:shown');
         },
 
         hide: function() {
             this.$el
-                .removeClass('in')
                 .attr('aria-hidden', true)
                 .hide();
 
-            this.backdrop.removeClass('in');
             this.backdrop.off('click', this.onModalBackdropClick);
 
             this.backdrop.remove();
@@ -89,6 +87,13 @@ define([
 
             event.preventDefault();
             event.stopPropagation();
-        }
+        },
+
+        /**
+         * Centers the modal in the page
+         */
+        center: function() {
+            this.$el.css('margin-left', this.$el.width() / 2 * -1);
+        },
     });
 });
