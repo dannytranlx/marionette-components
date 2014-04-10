@@ -21,6 +21,8 @@
 
     header {
         @extend %mc-modal-common;
+
+        padding-right: 1.5em;
         background-color: $header-bg-color;
         @include border-radius($border-radius $border-radius 0 0);
         font-size: 1.7rem;
