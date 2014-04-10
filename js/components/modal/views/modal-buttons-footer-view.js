@@ -1,7 +1,7 @@
 define([
     'underscore',
     'marionette',
-    'hbs!templates/modal/modal-buttons-footer-template'
+    'hbs!marionette-components/templates/modal/modal-buttons-footer-template'
 ], function(
     _,
     Marionette,

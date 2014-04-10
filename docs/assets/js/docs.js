@@ -21365,7 +21365,7 @@ define('hbs',[
 ;
 
 /* START_TEMPLATE */
-define('hbs!templates/modal/modal-no-footer-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
+define('hbs!marionette-components/templates/modal/modal-no-footer-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
 var t = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers);
@@ -21378,11 +21378,11 @@ return t;
 });
 /* END_TEMPLATE */
 ;
-define('components/modal/views/modal-no-footer-view',[
+define('marionette-components/components/modal/views/modal-no-footer-view',[
     'underscore',
     'jquery',
     'marionette',
-    'hbs!templates/modal/modal-no-footer-template'
+    'hbs!marionette-components/templates/modal/modal-no-footer-template'
 ], function(
     _,
     $,
@@ -21474,7 +21474,7 @@ define('components/modal/views/modal-no-footer-view',[
 });
 
 /* START_TEMPLATE */
-define('hbs!templates/modal/modal-header-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
+define('hbs!marionette-components/templates/modal/modal-header-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
 var t = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers);
@@ -21492,10 +21492,10 @@ return t;
 });
 /* END_TEMPLATE */
 ;
-define('components/modal/views/modal-header-view',[
+define('marionette-components/components/modal/views/modal-header-view',[
     'underscore',
     'marionette',
-    'hbs!templates/modal/modal-header-template'
+    'hbs!marionette-components/templates/modal/modal-header-template'
 ], function(
     _,
     Marionette,
@@ -21513,7 +21513,7 @@ define('components/modal/views/modal-header-view',[
     });
 });
 
-define('components/modal/views/modal-html-content-view',[
+define('marionette-components/components/modal/views/modal-html-content-view',[
     'underscore',
     'marionette'
 ], function(
@@ -21531,7 +21531,7 @@ define('components/modal/views/modal-html-content-view',[
         }
     });
 });
-define('utils/errors',[], function() {
+define('marionette-components/utils/errors',[], function() {
     return {
         /**
          * Throws an error
@@ -21546,14 +21546,14 @@ define('utils/errors',[], function() {
         }
     };
 });
-define('components/modal/modal-no-footer',[
+define('marionette-components/components/modal/modal-no-footer',[
     'jquery',
     'underscore',
     'marionette',
-    'components/modal/views/modal-no-footer-view',
-    'components/modal/views/modal-header-view',
-    'components/modal/views/modal-html-content-view',
-    'utils/errors'
+    'marionette-components/components/modal/views/modal-no-footer-view',
+    'marionette-components/components/modal/views/modal-header-view',
+    'marionette-components/components/modal/views/modal-html-content-view',
+    'marionette-components/utils/errors'
 ], function(
     $,
     _,
@@ -21746,7 +21746,7 @@ define('components/modal/modal-no-footer',[
 });
 
 /* START_TEMPLATE */
-define('hbs!templates/modal/modal-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
+define('hbs!marionette-components/templates/modal/modal-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
 var t = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers);
@@ -21759,11 +21759,11 @@ return t;
 });
 /* END_TEMPLATE */
 ;
-define('components/modal/views/modal-view',[
+define('marionette-components/components/modal/views/modal-view',[
     'underscore',
     'marionette',
-    'components/modal/views/modal-no-footer-view',
-    'hbs!templates/modal/modal-template'
+    'marionette-components/components/modal/views/modal-no-footer-view',
+    'hbs!marionette-components/templates/modal/modal-template'
 ], function(
     _,
     Marionette,
@@ -21787,7 +21787,7 @@ define('components/modal/views/modal-view',[
 });
 
 /* START_TEMPLATE */
-define('hbs!templates/modal/modal-buttons-footer-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
+define('hbs!marionette-components/templates/modal/modal-buttons-footer-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
 var t = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers);
@@ -21890,10 +21890,10 @@ return t;
 });
 /* END_TEMPLATE */
 ;
-define('components/modal/views/modal-buttons-footer-view',[
+define('marionette-components/components/modal/views/modal-buttons-footer-view',[
     'underscore',
     'marionette',
-    'hbs!templates/modal/modal-buttons-footer-template'
+    'hbs!marionette-components/templates/modal/modal-buttons-footer-template'
 ], function(
     _,
     Marionette,
@@ -21937,13 +21937,13 @@ define('components/modal/views/modal-buttons-footer-view',[
     });
 });
 
-define('components/modal/modal',[
+define('marionette-components/components/modal/modal',[
     'underscore',
     'marionette',
-    'components/modal/modal-no-footer',
-    'components/modal/views/modal-view',
-    'components/modal/views/modal-buttons-footer-view',
-    'utils/errors'
+    'marionette-components/components/modal/modal-no-footer',
+    'marionette-components/components/modal/views/modal-view',
+    'marionette-components/components/modal/views/modal-buttons-footer-view',
+    'marionette-components/utils/errors'
 ], function(
     _,
     Marionette,
@@ -22025,12 +22025,12 @@ define('components/modal/modal',[
         },
     });
 });
-define('components/modal/modal-ajax-no-footer',[
+define('marionette-components/components/modal/modal-ajax-no-footer',[
     'jquery',
     'underscore',
     'marionette',
-    'components/modal/modal-no-footer',
-    'utils/errors'
+    'marionette-components/components/modal/modal-no-footer',
+    'marionette-components/utils/errors'
 ], function(
     $,
     _,
@@ -22100,9 +22100,9 @@ define('components/modal/modal-ajax-no-footer',[
         }
     });
 });
-define('components/modal/modal-ajax',[
-    'components/modal/modal-ajax-no-footer',
-    'components/modal/modal'
+define('marionette-components/components/modal/modal-ajax',[
+    'marionette-components/components/modal/modal-ajax-no-footer',
+    'marionette-components/components/modal/modal'
 ], function(
     ModalAjaxNoFooter,
     Modal
@@ -22112,14 +22112,14 @@ define('components/modal/modal-ajax',[
     });
 });
 define('js/marionette-components',[
-    'components/modal/modal',
-    'components/modal/modal-no-footer',
-    'components/modal/modal-ajax',
-    'components/modal/modal-ajax-no-footer',
-    'components/modal/views/modal-no-footer-view',
-    'components/modal/views/modal-view',
-    'components/modal/views/modal-header-view',
-    'components/modal/views/modal-buttons-footer-view'
+    'marionette-components/components/modal/modal',
+    'marionette-components/components/modal/modal-no-footer',
+    'marionette-components/components/modal/modal-ajax',
+    'marionette-components/components/modal/modal-ajax-no-footer',
+    'marionette-components/components/modal/views/modal-no-footer-view',
+    'marionette-components/components/modal/views/modal-view',
+    'marionette-components/components/modal/views/modal-header-view',
+    'marionette-components/components/modal/views/modal-buttons-footer-view'
 ], function(
     Modal,
     ModalNoFooter,
