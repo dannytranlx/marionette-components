@@ -1,4 +1,14 @@
 requirejs.config({
+    hbs: {
+        helpers: true,
+        i18n: false,
+        templateExtension: 'hbs',
+        helperPathCallback: function(name) {
+            return 'js/templates/helpers/' + name;
+        },
+        partialsUrl: 'js/templates/'
+    },
+
     paths: {
         backbone: 'bower_components/backbone/backbone',
         'backbone.babysitter': 'bower_components/backbone.babysitter/lib/amd/backbone.babysitter',
@@ -7,8 +17,6 @@ requirejs.config({
         hbs: 'bower_components/require-handlebars-plugin/hbs',
         underscore: 'bower_components/underscore/underscore',
         jquery: 'bower_components/jquery/dist/jquery',
-        components: 'js/components',
-        templates: 'js/templates',
-        utils: 'js/utils'
+        'marionette-components': 'js'
     }
 })
