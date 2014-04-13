@@ -21402,7 +21402,7 @@ define('marionette-components/components/modal/views/modal-no-footer-view',[
         },
 
         ui: {
-            closeButton: 'button[data-dismiss]'
+            closeButton: '.mc-close-button'
         },
 
         events: {

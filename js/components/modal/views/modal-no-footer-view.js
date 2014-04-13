@@ -22,7 +22,7 @@ define([
         },
 
         ui: {
-            closeButton: 'button[data-dismiss]'
+            closeButton: '.mc-close-button'
         },
 
         events: {
