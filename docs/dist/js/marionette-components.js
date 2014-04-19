@@ -13807,7 +13807,7 @@ Wreqr.Handlers = (function(Backbone, _){
       var config = this._wreqrHandlers[name];
 
       if (!config){
-        throw new Error("Handler not found for '" + name + "'");
+        return;
       }
 
       return function(){
@@ -13966,8 +13966,9 @@ Wreqr.RequestResponse = (function(Wreqr){
     request: function(){
       var name = arguments[0];
       var args = Array.prototype.slice.call(arguments, 1);
-
-      return this.getHandler(name).apply(this, args);
+      if (this.hasHandler(name)) {
+        return this.getHandler(name).apply(this, args);
+      }
     }
   });
 
@@ -13990,6 +13991,154 @@ Wreqr.EventAggregator = (function(Backbone, _){
 
   return EA;
 })(Backbone, _);
+
+  // Wreqr.Channel
+// --------------
+//
+// An object that wraps the three messaging systems:
+// EventAggregator, RequestResponse, Commands
+Wreqr.Channel = (function(Wreqr){
+  
+
+  var Channel = function(channelName) {
+    this.vent        = new Backbone.Wreqr.EventAggregator();
+    this.reqres      = new Backbone.Wreqr.RequestResponse();
+    this.commands    = new Backbone.Wreqr.Commands();
+    this.channelName = channelName;
+  };
+
+  _.extend(Channel.prototype, {
+
+    // Remove all handlers from the messaging systems of this channel
+    reset: function() {
+      this.vent.off();
+      this.vent.stopListening();
+      this.reqres.removeAllHandlers();
+      this.commands.removeAllHandlers();
+      return this;
+    },
+
+    // Connect a hash of events; one for each messaging system
+    connectEvents: function(hash, context) {
+      this._connect('vent', hash, context);
+      return this;
+    },
+
+    connectCommands: function(hash, context) {
+      this._connect('commands', hash, context);
+      return this;
+    },
+
+    connectRequests: function(hash, context) {
+      this._connect('reqres', hash, context);
+      return this;
+    },
+
+    // Attach the handlers to a given message system `type`
+    _connect: function(type, hash, context) {
+      if (!hash) {
+        return;
+      }
+
+      context = context || this;
+      var method = (type === 'vent') ? 'on' : 'setHandler';
+
+      _.each(hash, function(fn, eventName) {
+        this[type][method](eventName, _.bind(fn, context));
+      }, this);
+    }
+  });
+
+
+  return Channel;
+})(Wreqr);
+
+  // Wreqr.Radio
+// --------------
+//
+// An object that lets you communicate with many channels.
+Wreqr.radio = (function(Wreqr){
+  
+
+  var Radio = function() {
+    this._channels = {};
+    this.vent = {};
+    this.commands = {};
+    this.reqres = {};
+    this._proxyMethods();
+  };
+
+  _.extend(Radio.prototype, {
+
+    channel: function(channelName) {
+      if (!channelName) {
+        throw new Error('Channel must receive a name');
+      }
+
+      return this._getChannel( channelName );
+    },
+
+    _getChannel: function(channelName) {
+      var channel = this._channels[channelName];
+
+      if(!channel) {
+        channel = new Wreqr.Channel(channelName);
+        this._channels[channelName] = channel;
+      }
+
+      return channel;
+    },
+
+    _proxyMethods: function() {
+      _.each(['vent', 'commands', 'reqres'], function(system) {
+        _.each( messageSystems[system], function(method) {
+          this[system][method] = proxyMethod(this, system, method);
+        }, this);
+      }, this);
+    }
+  });
+
+
+  var messageSystems = {
+    vent: [
+      'on',
+      'off',
+      'trigger',
+      'once',
+      'stopListening',
+      'listenTo',
+      'listenToOnce'
+    ],
+
+    commands: [
+      'execute',
+      'setHandler',
+      'setHandlers',
+      'removeHandler',
+      'removeAllHandlers'
+    ],
+
+    reqres: [
+      'request',
+      'setHandler',
+      'setHandlers',
+      'removeHandler',
+      'removeAllHandlers'
+    ]
+  };
+
+  var proxyMethod = function(radio, system, method) {
+    return function(channelName) {
+      var messageSystem = radio._getChannel(channelName)[system];
+      var args = Array.prototype.slice.call(arguments, 1);
+
+      messageSystem[method].apply(messageSystem, args);
+    };
+  };
+
+  return new Radio();
+
+})(Wreqr);
 
 
   return Wreqr;
@@ -14183,7 +14332,7 @@ Backbone.ChildViewContainer = (function(Backbone, _){
 
 // MarionetteJS (Backbone.Marionette)
 // ----------------------------------
-// v1.7.3
+// v1.7.4
 //
 // Copyright (c)2014 Derick Bailey, Muted Solutions, LLC.
 // Distributed under MIT license
@@ -16061,7 +16210,8 @@ Marionette.Behaviors = (function(Marionette, _) {
         _.each(_.keys(behaviorEvents), function(key) {
           // append white-space at the end of each key to prevent behavior key collisions
           // this is relying on the fact backbone events considers "click .foo" the same  "click .foo "
-          var whitespace = (new Array(i+1)).join(" ");
+          // starts with an array of two so the first behavior has one space
+          var whitespace = (new Array(i+2)).join(" ");
           var eventKey   = key + whitespace;
           var handler    = _.isFunction(behaviorEvents[key]) ? behaviorEvents[key] : b[behaviorEvents[key]];
 
@@ -16385,8 +16535,6 @@ _.extend(Marionette.Module.prototype, Backbone.Events, {
     this._initializerCallbacks.reset();
     this._finalizerCallbacks.reset();
 
-    this.stopListening();
-
     Marionette.triggerMethod.call(this, "stop");
   },
 
@@ -16486,49 +16634,62 @@ _.extend(Marionette.Module, {
     return moduleDefinition.moduleClass || ModuleClass;
   },
 
+  // Add the module definition and add a startWithParent initializer function.
+  // This is complicated because module definitions are heavily overloaded
+  // and support an anonymous function, module class, or options object
   _addModuleDefinition: function(parentModule, module, def, args){
-    var fn;
-    var startWithParent;
+    var fn = this._getDefine(def);
+    var startWithParent = this._getStartWithParent(def, module);
 
-    if (_.isFunction(def) && !(def.prototype instanceof Marionette.Module)){
-      // if a function is supplied for the module definition
-      fn = def;
-      startWithParent = true;
-
-    } else if (_.isObject(def)){
-      // if an object is supplied
-      fn = def.define;
-      startWithParent = !_.isUndefined(def.startWithParent) ? def.startWithParent : true;
-
-    } else {
-      // if nothing is supplied
-      startWithParent = true;
-    }
-
-    // add module definition if needed
     if (fn){
       module.addDefinition(fn, args);
     }
 
-    // `and` the two together, ensuring a single `false` will prevent it
-    // from starting with the parent
-    module.startWithParent = module.startWithParent && startWithParent;
+    this._addStartWithParent(parentModule, module, startWithParent);
+  },
 
-    // setup auto-start if needed
-    if (module.startWithParent && !module.startWithParentIsConfigured){
+  _getStartWithParent: function(def, module) {
+    var swp;
 
-      // only configure this once
-      module.startWithParentIsConfigured = true;
-
-      // add the module initializer config
-      parentModule.addInitializer(function(options){
-        if (module.startWithParent){
-          module.start(options);
-        }
-      });
-
+    if (_.isFunction(def) && (def.prototype instanceof Marionette.Module)) {
+      swp = module.constructor.prototype.startWithParent;
+      return _.isUndefined(swp) ? true : swp;
     }
 
+    if (_.isObject(def)){
+      swp = def.startWithParent;
+      return _.isUndefined(swp) ? true : swp;
+    }
+
+    return true;
+  },
+
+  _getDefine: function(def) {
+    if (_.isFunction(def) && !(def.prototype instanceof Marionette.Module)) {
+      return def;
+    }
+
+    if (_.isObject(def)){
+      return def.define;
+    }
+
+    return null;
+  },
+
+  _addStartWithParent: function(parentModule, module, startWithParent) {
+    module.startWithParent = module.startWithParent && startWithParent;
+
+    if (!module.startWithParent || !!module.startWithParentIsConfigured){
+      return;
+    }
+
+    module.startWithParentIsConfigured = true;
+
+    parentModule.addInitializer(function(options){
+      if (module.startWithParent){
+        module.start(options);
+      }
+    });
   }
 });
 
@@ -22111,6 +22272,265 @@ define('marionette-components/components/modal/modal-ajax',[
         modal: Modal
     });
 });
+define('marionette-components/utils/bus-controller',[
+    'underscore',
+    'backbone',
+    'marionette'
+], function(
+    _,
+    Backbone,
+    Marionette
+) {
+    return Marionette.Controller.extend({
+        busPrefix: undefined,
+
+        busEvents: {},
+
+        constructor: function() {
+            Marionette.View.prototype.constructor.apply(this, arguments);
+            this.bindBusEvents();
+        },
+
+        bindBusEvents: function() {
+            var busEvents = Marionette.getOption(this, 'busEvents');
+
+            if (_.isFunction(busEvents)) {
+                busEvents = busEvents.call(this);
+            }
+
+            var prefix = function(key) {
+                var busPrefix = Marionette.getOption(this, 'busPrefix');
+
+                return (busPrefix ? busPrefix + ':' : '') + key;
+            };
+
+            _.each(_.pairs(busEvents), function(pair) {
+                var eventKey = pair[0];
+                var functionName = pair[1];
+
+                var eventName = prefix(eventKey);
+
+                Backbone.on(eventName, _.bind(this[functionName], this));
+            }, this);
+
+        }
+    });
+});
+define('marionette-components/components/notifier/models/notification-model',[
+    'backbone'
+], function(
+    Backbone
+) {
+    return Backbone.Model.extend({
+        levels: {
+            info: 'info',
+            danger: 'danger',
+            warning: 'warning'
+        },
+
+        types: {
+            sticky: 'sticky',
+            fade: 'fade'
+        },
+
+        defaults: {
+            level: 'info',
+            title: '',
+            message: '',
+            type: 'fade',
+            options: {}
+        }
+    });
+});
+define('marionette-components/components/notifier/collections/notification-collection',[
+    'backbone',
+    'marionette-components/components/notifier/models/notification-model'
+], function(
+    Backbone,
+    NotificationModel
+) {
+    return Backbone.Collection.extend({
+        model: NotificationModel
+    });
+});
+define('marionette-components/components/notifier/views/notification-view',[
+    'marionette'
+], function(
+    Marionette
+) {
+    return Marionette.ItemView.extend({
+        className: 'mc-notification'
+    });
+});
+define('marionette-components/components/notifier/views/notification-collection-view',[
+    'marionette',
+    'marionette-components/components/notifier/views/notification-view'
+], function(
+    Marionette,
+    NotificationView
+) {
+    return Marionette.CollectionView.extend({
+        className: 'mc-notifications',
+        itemView: NotificationView
+    });
+});
+define('marionette-components/components/notifier/notifier',[
+    'jquery',
+    'underscore',
+    'backbone',
+    'marionette',
+    'marionette-components/utils/bus-controller',
+    'marionette-components/components/notifier/collections/notification-collection',
+    'marionette-components/components/notifier/views/notification-collection-view'
+], function(
+    $,
+    _,
+    Backbone,
+    Marionette,
+    BusController,
+    NotificationCollection,
+    NotificationCollectionView
+) {
+    return BusController.extend({
+        container: 'body',
+
+        busPrefix: 'notifier',
+
+        busEvents: {
+            notify: 'notify',
+            info: 'info',
+            warning: 'warning',
+            danger: 'danger'
+        },
+
+        limit: 5,
+        stickyTime: 5000,
+
+        getLimit: function() {
+            var limit = Marionette.getOption(this, 'limit');
+
+            if (_.isFunction(limit)) {
+                limit = limit.call(this);
+            }
+
+            return limit;
+        },
+
+        getStickyTime: function() {
+            var stickyTime = Marionette.getOption(this, 'stickyTime');
+
+            if (_.isFunction(stickyTime)) {
+                stickyTime = stickyTime.call(this);
+            }
+
+            return stickyTime;
+        },
+
+        getContainer: function() {
+            var container = Marionette.getOption(this, 'container');
+
+            if (_.isFunction(container)) {
+                container = container.call(this);
+            }
+
+            return $(container);
+        },
+
+        initialize: function() {
+            _.bindAll(this,
+                'onAddNotification',
+                'onRemoveNotification',
+                'onHideNotification',
+                'removeNotification'
+            );
+
+            this.queue = new NotificationCollection();
+            this.notifications = new NotificationCollection();
+
+            this.view = new NotificationCollectionView({
+                collection: this.notifications
+            });
+
+            this.initializeEvents();
+
+            var container = this.getContainer();
+
+            container.append(this.view.render().el);
+        },
+
+        initializeEvents: function() {
+            this.notifications.on('add', this.onAddNotification);
+            this.notifications.on('remove', this.onRemoveNotification);
+
+            this.view.on('itemview:hide', this.onHideNotification)
+
+        },
+
+        notify: function(options) {
+            var limit = this.getLimit();
+
+            var collection = this.notifications.length < limit ? this.notifications : this.queue;
+
+            collection.create(options);
+        },
+
+        info: function(options) {
+            options.type = NotificationCollection.prototype.model.prototype.types.info;
+            this.notify(options);
+        },
+
+        danger: function(options) {
+            options.type = NotificationCollection.prototype.model.prototype.types.danger;
+            this.notify(options);
+        },
+
+        warning: function(options) {
+            options.type = NotificationCollection.prototype.model.prototype.types.warning;
+            this.notify(options);
+        },
+
+        onAddNotification: function(notification) {
+            var type = notification.get('type');
+
+            if (type === notification.types.sticky) {
+                notification.timeoutId = setTimeout(this.removeNotification, this.getStickyTime(), notification);
+            }
+
+            this.trigger('notifier:added', notification);
+        },
+
+        onRemoveNotification: function(notification) {
+            var type = notification.get('type');
+
+            if (type === notification.types.sticky) {
+
+            }
+
+            this.trigger('notifier:removed', notification);
+
+            var nextNotification = this.queue.shift();
+
+            if (nextNotification) {
+                this.notifications.add(nextNotification);
+            }
+        },
+
+        onHideNotification: function(childView) {
+            var notification = childView.model;
+
+            if (notification.timeoutId) {
+                clearInterval(notification.timeoutId);
+            }
+
+            childView.close();
+        },
+
+        removeNotification: function(notification) {
+            var view = this.view.children.findByModel(notification);
+            this.onHideNotification(view);
+        }
+    });
+});
 define('js/marionette-components',[
     'marionette-components/components/modal/modal',
     'marionette-components/components/modal/modal-no-footer',
@@ -22119,7 +22539,8 @@ define('js/marionette-components',[
     'marionette-components/components/modal/views/modal-no-footer-view',
     'marionette-components/components/modal/views/modal-view',
     'marionette-components/components/modal/views/modal-header-view',
-    'marionette-components/components/modal/views/modal-buttons-footer-view'
+    'marionette-components/components/modal/views/modal-buttons-footer-view',
+    'marionette-components/components/notifier/notifier',
 ], function(
     Modal,
     ModalNoFooter,
@@ -22128,7 +22549,8 @@ define('js/marionette-components',[
     ModalNoFooterView,
     ModalView,
     ModalHeaderView,
-    ModalButtonsFooterView
+    ModalButtonsFooterView,
+    Notifier
 ) {
     return {
         Modal: Modal,
@@ -22138,7 +22560,8 @@ define('js/marionette-components',[
         ModalNoFooterView: ModalNoFooterView,
         ModalView: ModalView,
         ModalHeaderView: ModalHeaderView,
-        ModalButtonsFooterView: ModalButtonsFooterView
+        ModalButtonsFooterView: ModalButtonsFooterView,
+        Notifier: Notifier
     };
 });
     return require('js/marionette-components');

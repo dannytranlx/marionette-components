@@ -6,7 +6,8 @@ define([
     'marionette-components/components/modal/views/modal-no-footer-view',
     'marionette-components/components/modal/views/modal-view',
     'marionette-components/components/modal/views/modal-header-view',
-    'marionette-components/components/modal/views/modal-buttons-footer-view'
+    'marionette-components/components/modal/views/modal-buttons-footer-view',
+    'marionette-components/components/notifier/notifier',
 ], function(
     Modal,
     ModalNoFooter,
@@ -15,7 +16,8 @@ define([
     ModalNoFooterView,
     ModalView,
     ModalHeaderView,
-    ModalButtonsFooterView
+    ModalButtonsFooterView,
+    Notifier
 ) {
     return {
         Modal: Modal,
@@ -25,6 +27,7 @@ define([
         ModalNoFooterView: ModalNoFooterView,
         ModalView: ModalView,
         ModalHeaderView: ModalHeaderView,
-        ModalButtonsFooterView: ModalButtonsFooterView
+        ModalButtonsFooterView: ModalButtonsFooterView,
+        Notifier: Notifier
     };
 });
