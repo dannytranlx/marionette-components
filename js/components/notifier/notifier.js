@@ -5,7 +5,8 @@ define([
     'marionette',
     'marionette-components/utils/bus-controller',
     'marionette-components/components/notifier/collections/notification-collection',
-    'marionette-components/components/notifier/views/notification-collection-view'
+    'marionette-components/components/notifier/views/notification-collection-view',
+    'marionette-components/components/notifier/constants'
 ], function(
     $,
     _,
@@ -13,7 +14,8 @@ define([
     Marionette,
     BusController,
     NotificationCollection,
-    NotificationCollectionView
+    NotificationCollectionView,
+    NotifierConstants
 ) {
     return BusController.extend({
         container: 'body',
@@ -24,7 +26,8 @@ define([
             notify: 'notify',
             info: 'info',
             warning: 'warning',
-            danger: 'danger'
+            danger: 'danger',
+            success: 'success'
         },
 
         limit: 5,
@@ -99,24 +102,29 @@ define([
         },
 
         info: function(options) {
-            options.type = NotificationCollection.prototype.model.prototype.types.info;
+            options.type = NotifierConstants.types.info;
             this.notify(options);
         },
 
         danger: function(options) {
-            options.type = NotificationCollection.prototype.model.prototype.types.danger;
+            options.type = NotifierConstants.types.danger;
+            this.notify(options);
+        },
+
+        success: function(options) {
+            options.type = NotifierConstants.types.success;
             this.notify(options);
         },
 
         warning: function(options) {
-            options.type = NotificationCollection.prototype.model.prototype.types.warning;
+            options.type = NotifierConstants.types.warning;
             this.notify(options);
         },
 
         onAddNotification: function(notification) {
             var type = notification.get('type');
 
-            if (type === notification.types.sticky) {
+            if (type === NotifierConstants.types.fade) {
                 notification.timeoutId = setTimeout(this.removeNotification, this.getStickyTime(), notification);
             }
 
@@ -126,7 +134,7 @@ define([
         onRemoveNotification: function(notification) {
             var type = notification.get('type');
 
-            if (type === notification.types.sticky) {
+            if (type === NotifierConstants.types.fade) {
 
             }
 

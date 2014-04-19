@@ -22287,7 +22287,7 @@ define('marionette-components/utils/bus-controller',[
         busEvents: {},
 
         constructor: function() {
-            Marionette.View.prototype.constructor.apply(this, arguments);
+            Marionette.Controller.prototype.constructor.apply(this, arguments);
             this.bindBusEvents();
         },
 
@@ -22298,11 +22298,11 @@ define('marionette-components/utils/bus-controller',[
                 busEvents = busEvents.call(this);
             }
 
-            var prefix = function(key) {
+            var prefix = _.bind(function(key) {
                 var busPrefix = Marionette.getOption(this, 'busPrefix');
 
                 return (busPrefix ? busPrefix + ':' : '') + key;
-            };
+            }, this);
 
             _.each(_.pairs(busEvents), function(pair) {
                 var eventKey = pair[0];
@@ -22310,7 +22310,10 @@ define('marionette-components/utils/bus-controller',[
 
                 var eventName = prefix(eventKey);
 
+                // Binds the event on the global event bus and locally.
                 Backbone.on(eventName, _.bind(this[functionName], this));
+                this.on(eventName, _.bind(this[functionName], this));
+
             }, this);
 
         }
@@ -22322,17 +22325,6 @@ define('marionette-components/components/notifier/models/notification-model',[
     Backbone
 ) {
     return Backbone.Model.extend({
-        levels: {
-            info: 'info',
-            danger: 'danger',
-            warning: 'warning'
-        },
-
-        types: {
-            sticky: 'sticky',
-            fade: 'fade'
-        },
-
         defaults: {
             level: 'info',
             title: '',
@@ -22374,6 +22366,21 @@ define('marionette-components/components/notifier/views/notification-collection-
         itemView: NotificationView
     });
 });
+define('marionette-components/components/notifier/constants',[], function() {
+    return {
+        levels: {
+            info: 'info',
+            danger: 'danger',
+            warning: 'warning',
+            success: 'success'
+        },
+
+        types: {
+            sticky: 'sticky',
+            fade: 'fade'
+        }
+    };
+});
 define('marionette-components/components/notifier/notifier',[
     'jquery',
     'underscore',
@@ -22381,7 +22388,8 @@ define('marionette-components/components/notifier/notifier',[
     'marionette',
     'marionette-components/utils/bus-controller',
     'marionette-components/components/notifier/collections/notification-collection',
-    'marionette-components/components/notifier/views/notification-collection-view'
+    'marionette-components/components/notifier/views/notification-collection-view',
+    'marionette-components/components/notifier/constants'
 ], function(
     $,
     _,
@@ -22389,7 +22397,8 @@ define('marionette-components/components/notifier/notifier',[
     Marionette,
     BusController,
     NotificationCollection,
-    NotificationCollectionView
+    NotificationCollectionView,
+    NotifierConstants
 ) {
     return BusController.extend({
         container: 'body',
@@ -22400,7 +22409,8 @@ define('marionette-components/components/notifier/notifier',[
             notify: 'notify',
             info: 'info',
             warning: 'warning',
-            danger: 'danger'
+            danger: 'danger',
+            success: 'success'
         },
 
         limit: 5,
@@ -22475,24 +22485,29 @@ define('marionette-components/components/notifier/notifier',[
         },
 
         info: function(options) {
-            options.type = NotificationCollection.prototype.model.prototype.types.info;
+            options.type = NotifierConstants.types.info;
             this.notify(options);
         },
 
         danger: function(options) {
-            options.type = NotificationCollection.prototype.model.prototype.types.danger;
+            options.type = NotifierConstants.types.danger;
+            this.notify(options);
+        },
+
+        success: function(options) {
+            options.type = NotifierConstants.types.success;
             this.notify(options);
         },
 
         warning: function(options) {
-            options.type = NotificationCollection.prototype.model.prototype.types.warning;
+            options.type = NotifierConstants.types.warning;
             this.notify(options);
         },
 
         onAddNotification: function(notification) {
             var type = notification.get('type');
 
-            if (type === notification.types.sticky) {
+            if (type === NotifierConstants.types.fade) {
                 notification.timeoutId = setTimeout(this.removeNotification, this.getStickyTime(), notification);
             }
 
@@ -22502,7 +22517,7 @@ define('marionette-components/components/notifier/notifier',[
         onRemoveNotification: function(notification) {
             var type = notification.get('type');
 
-            if (type === notification.types.sticky) {
+            if (type === NotifierConstants.types.fade) {
 
             }
 
@@ -24624,7 +24639,7 @@ define('docs/assets/js/_src/application',[
                     secondaryActionText: 'Close modal anyway'
                 },
 
-                url : '/ajax-demo/',
+                url: '/ajax-demo/',
 
                 onPrimaryClick: function() {
                     modal.hide();
@@ -24632,6 +24647,21 @@ define('docs/assets/js/_src/application',[
             });
 
             modal.show();
+        });
+
+        var notifier = new MarionetteComponents.Notifier();
+
+        $('[data-action="notification"]').on('click', function(event) {
+            var button = $(event.target);
+            var type = button.data('action-type');
+
+            var notification = {
+                type: type,
+                title: 'Hey!',
+                message: 'What a nice notification!'
+            };
+
+            Backbone.trigger('notifier:notify', notification);
         });
     });
 });

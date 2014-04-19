@@ -103,7 +103,7 @@ define([
                     secondaryActionText: 'Close modal anyway'
                 },
 
-                url : '/ajax-demo/',
+                url: '/ajax-demo/',
 
                 onPrimaryClick: function() {
                     modal.hide();
@@ -111,6 +111,21 @@ define([
             });
 
             modal.show();
+        });
+
+        var notifier = new MarionetteComponents.Notifier();
+
+        $('[data-action="notification"]').on('click', function(event) {
+            var button = $(event.target);
+            var type = button.data('action-type');
+
+            var notification = {
+                type: type,
+                title: 'Hey!',
+                message: 'What a nice notification!'
+            };
+
+            Backbone.trigger('notifier:notify', notification);
         });
     });
 });

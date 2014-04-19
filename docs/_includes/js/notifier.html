@@ -1,0 +1,58 @@
+<div class="bs-docs-section">
+  <h1 id="notifier" class="page-header">Notifier</h1>
+
+  <h2 id="notifier-examples">Examples</h2>
+  <p>The notifier allows you to display and manage notifications for your application.</p>
+
+  <h3>Basic Modal</h3>
+  <p>Toggle a modal via JavaScript by clicking the button below. It will slide down and fade in from the top of the page.</p>
+
+  <div class="bs-example" style="padding-bottom: 24px;">
+    <p>Click on the buttons to see an example.</p>
+    <div class="btn-group">
+        <button type="button" class="btn btn-danger" data-action="notification" data-action-type="danger">Danger</button>
+        <button type="button" class="btn btn-info" data-action="notification" data-action-type="info">Info</button>
+        <button type="button" class="btn btn-success" data-action="notification" data-action-type="success">Success</button>
+        <button type="button" class="btn btn-warning" data-action="notification" data-action-type="warning">Warning</button>
+    </div>
+  </div><!-- /example -->
+
+{% highlight html %}
+<div class="btn-group">
+    <button type="button" class="btn btn-danger" data-action="notification" data-action-type="danger">Danger</button>
+    <button type="button" class="btn btn-info" data-action="notification" data-action-type="info">Info</button>
+    <button type="button" class="btn btn-success" data-action="notification" data-action-type="success">Success</button>
+    <button type="button" class="btn btn-warning" data-action="notification" data-action-type="warning">Warning</button>
+</div>
+{% endhighlight %}
+{% highlight js %}
+// somewhere in your application, instantiate the notifier.
+var notifier = new MarionetteComponents.Notifier();
+
+$('[data-action="notification"]').on('click', function(event){
+    var button = $(event.target);
+    var type = button.data('action-type');
+
+    var notification = {
+        type: type,
+        title: 'Hey!',
+        message: 'What a nice notification!'
+    };
+
+    // The notifier listens to the global event bus of Backbone
+    Backbone.trigger('notifier:notify', notification);
+
+    // But you can achieve the same thing with this:
+    notifier.trigger('notifier:notify', notification);
+
+    // Or
+    notifier.notify(notification);
+
+    // You can also use the helper functions
+    Backbone.trigger('notifier:info', notification); // sets type = 'info'
+    Backbone.trigger('notifier:warning', notification); // sets type = 'warning'
+
+    // ... you get the point.
+});
+
+{% endhighlight %}

@@ -4,17 +4,6 @@ define([
     Backbone
 ) {
     return Backbone.Model.extend({
-        levels: {
-            info: 'info',
-            danger: 'danger',
-            warning: 'warning'
-        },
-
-        types: {
-            sticky: 'sticky',
-            fade: 'fade'
-        },
-
         defaults: {
             level: 'info',
             title: '',
