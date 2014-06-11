@@ -118,7 +118,7 @@ define([
         },
 
         buildContentView: function() {
-            var view = this.contentViewInstance;
+            var view = this.contentViewInstance || Marionette.getOption(this, 'contentViewInstance');
 
             if (!view) {
                 var contentViewOptions = Marionette.getOption(this, 'contentViewOptions');
