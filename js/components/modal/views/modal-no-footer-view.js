@@ -16,7 +16,7 @@ define([
 
         className: 'modal fade',
 
-        regions:  {
+        regions: {
             header: 'header',
             content: '.modal-body'
         },
