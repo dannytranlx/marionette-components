@@ -60,7 +60,7 @@ define([
         },
 
         buildModalView: function() {
-            var view = this.modalViewInstance;
+            var view = this.modalViewInstance || Marionette.getOption(this, 'modalViewInstance');
 
             if (!view) {
                 var modalViewOptions = Marionette.getOption(this, 'modalViewOptions') || {};
@@ -89,7 +89,7 @@ define([
         },
 
         buildHeaderView: function() {
-            var view = this.headerViewInstance;
+            var view = this.headerViewInstance || Marionette.getOption(this, 'headerViewInstance');
 
             if (!view) {
                 var headerViewOptions = Marionette.getOption(this, 'headerViewOptions');
@@ -118,7 +118,7 @@ define([
         },
 
         buildContentView: function() {
-            var view = this.contentViewInstance;
+            var view = this.contentViewInstance || Marionette.getOption(this, 'contentViewInstance');
 
             if (!view) {
                 var contentViewOptions = Marionette.getOption(this, 'contentViewOptions');
