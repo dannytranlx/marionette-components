@@ -16,7 +16,7 @@
   ],
   "dependencies": {
     "backbone": "~1.1.2",
-    "marionette": "~1.7.3",
+    "marionette": "~2.0.1",
     "jquery": "~1.11.0",
     "require-handlebars-plugin": "~0.8.0",
     "underscore": "~1.6.0",
@@ -25,5 +25,8 @@
   "devDependencies": {
     "almond": "~0.2.9",
     "bootstrap": "3.1.1"
+  },
+  "resolutions": {
+    "marionette": "~2.0.1"
   }
 }
