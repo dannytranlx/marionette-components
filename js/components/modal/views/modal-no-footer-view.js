@@ -9,7 +9,7 @@ define([
     Marionette,
     ModalNoFooterTemplate
 ) {
-    return Marionette.Layout.extend({
+    return Marionette.LayoutView.extend({
         template: ModalNoFooterTemplate,
 
         tagName: 'div',

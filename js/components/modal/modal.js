@@ -40,7 +40,8 @@ define([
         },
 
         buildFooterView: function() {
-            var view = this.footerViewInstance;
+            var view = this.footerViewInstance || Marionette.getOption(this, 'footerViewInstance');
+
             if (!view) {
                 var footerViewOptions = Marionette.getOption(this, 'footerViewOptions');
                 if (_.isFunction(footerViewOptions)) {
