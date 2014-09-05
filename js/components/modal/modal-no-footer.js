@@ -17,7 +17,7 @@ define([
 ) {
     return Marionette.Controller.extend({
 
-        closeOnHidden: true,
+        destroyOnHidden: true,
 
         container: 'body',
 
@@ -138,10 +138,10 @@ define([
         },
 
         bindModalViewEvents: function(view) {
-            var closeOnHidden = Marionette.getOption(this, 'closeOnHidden');
+            var destroyOnHidden = Marionette.getOption(this, 'destroyOnHidden');
 
-            if (closeOnHidden) {
-                view.on('modal:hidden', _.bind(this.closeModalOnHide, this));
+            if (destroyOnHidden) {
+                view.on('modal:hidden', _.bind(this.destroyModalOnHide, this));
             }
 
             view.on('modal:hidden', _.bind(this.onModalHidden, this));
@@ -158,9 +158,11 @@ define([
             }
         },
 
-        closeModalOnHide: function() {
-            this.modalViewInstance.close();
-            this.close();
+        destroyModalOnHide: function() {
+            if (this.modalViewInstance) {
+                this.modalViewInstance.destroy();
+            }
+            this.destroy();
         },
 
         onModalHidden: function() {},
