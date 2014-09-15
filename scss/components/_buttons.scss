@@ -1,0 +1,58 @@
+%mc-button {
+    display: inline-block;
+    padding: 10px 20px;
+    @include border-radius($border-radius);
+    font-weight: normal;
+}
+
+button {
+    // Resets the default button styling
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    line-height: 1;
+
+    &:hover {
+        cursor: pointer;
+    }
+
+    &:focus {
+        outline: 0;
+    }
+}
+
+.mc-button-default {
+    @extend %mc-button;
+
+    border: 1px solid #ccc;
+}
+
+.mc-button-primary {
+    @extend %mc-button;
+
+    background-color: $primary-bg-color;
+    color: white;
+
+    &:hover {
+        background-color: lighten($primary-bg-color, 5);
+    }
+}
+
+.mc-button-link {
+    @extend %mc-button;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.mc-close-button {
+    color: $shaded-fg-color;
+    font-size: 1.3rem;
+    font-weight: bold;
+
+    &:hover {
+        @include opacity(0.8);
+    }
+}

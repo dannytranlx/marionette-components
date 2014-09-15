@@ -1,0 +1,55 @@
+%mc-modal-common {
+    padding: 0.3em 0.5em;
+    background-color: white;
+}
+
+.mc-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.mc-modal {
+    position: fixed;
+    margin: 2em;
+
+    left: 50%;
+    top: 25%;
+
+    @include border-radius($border-radius);
+    @include box-shadow(0 0 8px rgba(0, 0, 0, 0.4));
+
+    header {
+        @extend %mc-modal-common;
+
+        padding-right: 1.5em;
+        background-color: $header-bg-color;
+        @include border-radius($border-radius $border-radius 0 0);
+        font-size: 1.7rem;
+        text-align: center;
+        color: $header-fg-color;
+
+        h4 {
+            margin: 0;
+        }
+    }
+
+    section {
+        @extend %mc-modal-common;
+    }
+
+    footer {
+        @extend %mc-modal-common;
+
+        text-align: center;
+    }
+
+    .mc-close-button {
+        position: absolute;
+        top: 0.5em;
+        right: 0.5em;
+    }
+}

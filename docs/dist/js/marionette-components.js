@@ -21372,7 +21372,7 @@ helpers = this.merge(helpers, Handlebars.helpers);
   
 
 
-  return "<div class=\"modal-dialog\">\n    <div class=\"modal-content\">\n        <div class=\"modal-header\">\n            <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>\n            <header>\n            </header>\n            </div>\n        <div class=\"modal-body\">\n        </div>\n    </div>\n</div>";
+  return "<header>\n</header>\n<section>\n</section>\n";
   });
 return t;
 });
@@ -21392,17 +21392,17 @@ define('marionette-components/components/modal/views/modal-no-footer-view',[
     return Marionette.Layout.extend({
         template: ModalNoFooterTemplate,
 
-        tagName: 'div',
+        tagName: 'aside',
 
-        className: 'modal fade',
+        className: 'mc-modal',
 
         regions:  {
             header: 'header',
-            content: '.modal-body'
+            content: 'section'
         },
 
         ui: {
-            closeButton: 'button[data-dismiss]'
+            closeButton: '.mc-close-button'
         },
 
         events: {
@@ -21417,7 +21417,7 @@ define('marionette-components/components/modal/views/modal-no-footer-view',[
                 'onModalBackdropClick'
             );
 
-            this.backdrop = $('<div class="modal-backdrop fade" />');
+            this.backdrop = $('<div class="mc-modal-backdrop" />');
 
             this.on('modal:shown', this.onShown);
             this.on('modal:hidden', this.onHidden);
@@ -21428,7 +21428,6 @@ define('marionette-components/components/modal/views/modal-no-footer-view',[
 
         show: function() {
             this.$el
-                .addClass('in')
                 .attr('aria-hidden', false);
 
             this.$el
@@ -21438,18 +21437,17 @@ define('marionette-components/components/modal/views/modal-no-footer-view',[
             this.$el.before(this.backdrop);
 
             this.backdrop.on('click', this.onModalBackdropClick);
-            this.backdrop.addClass('in')
+
+            this.center();
 
             this.trigger('modal:shown');
         },
 
         hide: function() {
             this.$el
-                .removeClass('in')
                 .attr('aria-hidden', true)
                 .hide();
 
-            this.backdrop.removeClass('in');
             this.backdrop.off('click', this.onModalBackdropClick);
 
             this.backdrop.remove();
@@ -21469,7 +21467,14 @@ define('marionette-components/components/modal/views/modal-no-footer-view',[
 
             event.preventDefault();
             event.stopPropagation();
-        }
+        },
+
+        /**
+         * Centers the modal in the page
+         */
+        center: function() {
+            this.$el.css('margin-left', this.$el.width() / 2 * -1);
+        },
     });
 });
 
@@ -21481,7 +21486,7 @@ helpers = this.merge(helpers, Handlebars.helpers);
   var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<h4 class=\"modal-title\">";
+  buffer += "<button class=\"mc-close-button\">&times;</button>\n<h4>";
   if (helper = helpers.title) { stack1 = helper.call(depth0, {hash:{}}); }
   else { helper = (depth0 && depth0.title); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{}}) : helper; }
   buffer += escapeExpression(stack1)
@@ -21753,7 +21758,7 @@ helpers = this.merge(helpers, Handlebars.helpers);
   
 
 
-  return "<div class=\"modal-dialog\">\n    <div class=\"modal-content\">\n        <div class=\"modal-header\">\n            <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>\n            <header>\n            </header>\n        </div>\n        <div class=\"modal-body\">\n        </div>\n        <div class=\"modal-footer\">\n        </div>\n    </div>\n</div>\n";
+  return "<header>\n</header>\n<section>\n</section>\n<footer>\n</footer>\n";
   });
 return t;
 });
@@ -21772,12 +21777,11 @@ define('marionette-components/components/modal/views/modal-view',[
 ) {
     return ModalNoFooterView.extend({
         template: ModalTemplate,
-        className: 'modal',
 
         regions:  {
             header: 'header',
-            content: '.modal-body',
-            footer: '.modal-footer'
+            content: 'section',
+            footer: 'footer'
         },
 
         initialize: function(options) {

@@ -86,26 +86,11 @@ module.exports = function(grunt) {
             }
         },
 
-        sass: {
+        compass: {
             dist: {
-                style: 'compressed',
-                sourcemap: true,
-                unixNewlines: true,
-                expand: true,
-                cwd: 'scss',
-                src: ['*.scss'],
-                dest: 'dist/css',
-                ext: '.min.css'
-            },
-            src: {
-                style: 'expanded',
-                unixNewlines: true,
-                banner: '<%= banner %>',
-                expand: true,
-                cwd: 'scss',
-                src: ['*.scss'],
-                dest: 'dist/css',
-                ext: '.css'
+                outputStyle: 'compressed',
+                sassDir: 'scss',
+                cssDir: 'dist/css',
             }
         },
 
@@ -335,7 +320,7 @@ module.exports = function(grunt) {
     grunt.registerTask('dist-doc-js', ['concat:bootstrap', 'requirejs:docs_src', 'requirejs:docs']);
 
     // CSS distribution task.
-    grunt.registerTask('dist-css', ['sass']);
+    grunt.registerTask('dist-css', ['compass']);
 
     // Full distribution task.
     grunt.registerTask('dist', ['clean', 'dist-css', 'dist-js', 'copy:docs', 'dist-doc-js', 'jekyll']);

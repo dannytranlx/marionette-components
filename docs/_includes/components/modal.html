@@ -19,43 +19,36 @@
 
   <h3>Static example</h3>
   <p>A rendered modal with header, body, and set of actions in the footer.</p>
-  <div class="bs-example bs-example-modal">
-    <div class="modal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Modal title</h4>
-          </div>
-          <div class="modal-body">
-            <p>One fine body&hellip;</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-  </div><!-- /example -->
+
+    <aside class="mc-modal">
+        <header>
+            <button class="mc-close-button">&times;</button>
+            <h4>An example modal title</h4>
+        </header>
+        <section>
+            Modal content
+            <img src="http://placekitten.com/g/200/300" alt="very cat. much cute.">
+        </section>
+        <footer>
+            <button class="mc-button-primary">Save &amp; Close</button>
+            <button class="mc-button-link">Cancel</button>
+        </footer>
+    </aside>
 {% highlight html %}
-<div class="modal fade">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Modal title</h4>
-      </div>
-      <div class="modal-body">
-        <p>One fine body&hellip;</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+<aside class="mc-modal">
+        <header>
+            <button class="mc-close-button">&times;</button>
+            <h4>An example modal title</h4>
+        </header>
+        <section>
+            Modal content
+            <img src="http://placekitten.com/g/200/300" alt="very cat. much cute.">
+        </section>
+        <footer>
+            <button class="mc-button-primary">Save &amp; Close</button>
+            <button class="mc-button-link">Cancel</button>
+        </footer>
+    </aside>
 {% endhighlight %}
 
   <h3>Live demo</h3>
