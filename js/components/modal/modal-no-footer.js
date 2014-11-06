@@ -1,20 +1,18 @@
-define([
-    'jquery',
-    'underscore',
-    'marionette',
-    'marionette-components/components/modal/views/modal-no-footer-view',
-    'marionette-components/components/modal/views/modal-header-view',
-    'marionette-components/components/modal/views/modal-html-content-view',
-    'marionette-components/utils/errors'
-], function(
-    $,
-    _,
-    Marionette,
-    ModalNoFooterView,
-    ModalHeaderView,
-    ModalHtmlContentView,
-    ErrorsUtils
-) {
+(function(root, factory) {
+  if (typeof define === "function" && define.amd) {
+    define(['require', 'jquery', 'underscore', 'marionette', './views/modal-no-footer-view', './views/modal-header-view', './views/modal-html-content-view', '../../utils/errors'], factory);
+  } else if (typeof exports === "object") {
+    module.exports = factory(require);
+  }
+})(this, function(require) {
+
+var $ = require('jquery');
+var _ = require('underscore');
+var Marionette = require('marionette');
+var ModalNoFooterView = require('./views/modal-no-footer-view');
+var ModalHeaderView = require('./views/modal-header-view');
+var ModalHtmlContentView = require('./views/modal-html-content-view');
+var ErrorsUtils = require('../../utils/errors');
     return Marionette.Controller.extend({
 
         closeOnHidden: true,

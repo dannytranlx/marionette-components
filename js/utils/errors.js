@@ -2,7 +2,6 @@ define([], function() {
     return {
         /**
          * Throws an error
-         * (taken from Marionette source code)
          * @param  {String} message description of the error
          * @param  {String} name    name of the error
          */
