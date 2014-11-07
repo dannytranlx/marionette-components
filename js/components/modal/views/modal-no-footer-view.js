@@ -1,12 +1,12 @@
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
-        define(['underscore', 'jquery', 'marionette', 'hbs!../templates/modal/modal-no-footer-template'], factory);
+        define(['underscore', 'jquery', 'marionette', 'hbs!../templates/modal-no-footer-template'], factory);
     } else if (typeof exports === "object") {
         module.exports = factory(
             require('underscore'),
             require('jquery'),
             require('backbone.marionette'),
-            require('../templates/modal/modal-no-footer-template.hbs')
+            require('../templates/modal-no-footer-template.hbs')
         );
     }
 })(this, function(_, $, Marionette, ModalNoFooterTemplate) {

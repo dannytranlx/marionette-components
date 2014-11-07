@@ -13807,7 +13807,7 @@ Wreqr.Handlers = (function(Backbone, _){
       var config = this._wreqrHandlers[name];
 
       if (!config){
-        throw new Error("Handler not found for '" + name + "'");
+        return;
       }
 
       return function(){
@@ -13966,8 +13966,9 @@ Wreqr.RequestResponse = (function(Wreqr){
     request: function(){
       var name = arguments[0];
       var args = Array.prototype.slice.call(arguments, 1);
-
-      return this.getHandler(name).apply(this, args);
+      if (this.hasHandler(name)) {
+        return this.getHandler(name).apply(this, args);
+      }
     }
   });
 
@@ -13990,6 +13991,154 @@ Wreqr.EventAggregator = (function(Backbone, _){
 
   return EA;
 })(Backbone, _);
+
+  // Wreqr.Channel
+// --------------
+//
+// An object that wraps the three messaging systems:
+// EventAggregator, RequestResponse, Commands
+Wreqr.Channel = (function(Wreqr){
+  
+
+  var Channel = function(channelName) {
+    this.vent        = new Backbone.Wreqr.EventAggregator();
+    this.reqres      = new Backbone.Wreqr.RequestResponse();
+    this.commands    = new Backbone.Wreqr.Commands();
+    this.channelName = channelName;
+  };
+
+  _.extend(Channel.prototype, {
+
+    // Remove all handlers from the messaging systems of this channel
+    reset: function() {
+      this.vent.off();
+      this.vent.stopListening();
+      this.reqres.removeAllHandlers();
+      this.commands.removeAllHandlers();
+      return this;
+    },
+
+    // Connect a hash of events; one for each messaging system
+    connectEvents: function(hash, context) {
+      this._connect('vent', hash, context);
+      return this;
+    },
+
+    connectCommands: function(hash, context) {
+      this._connect('commands', hash, context);
+      return this;
+    },
+
+    connectRequests: function(hash, context) {
+      this._connect('reqres', hash, context);
+      return this;
+    },
+
+    // Attach the handlers to a given message system `type`
+    _connect: function(type, hash, context) {
+      if (!hash) {
+        return;
+      }
+
+      context = context || this;
+      var method = (type === 'vent') ? 'on' : 'setHandler';
+
+      _.each(hash, function(fn, eventName) {
+        this[type][method](eventName, _.bind(fn, context));
+      }, this);
+    }
+  });
+
+
+  return Channel;
+})(Wreqr);
+
+  // Wreqr.Radio
+// --------------
+//
+// An object that lets you communicate with many channels.
+Wreqr.radio = (function(Wreqr){
+  
+
+  var Radio = function() {
+    this._channels = {};
+    this.vent = {};
+    this.commands = {};
+    this.reqres = {};
+    this._proxyMethods();
+  };
+
+  _.extend(Radio.prototype, {
+
+    channel: function(channelName) {
+      if (!channelName) {
+        throw new Error('Channel must receive a name');
+      }
+
+      return this._getChannel( channelName );
+    },
+
+    _getChannel: function(channelName) {
+      var channel = this._channels[channelName];
+
+      if(!channel) {
+        channel = new Wreqr.Channel(channelName);
+        this._channels[channelName] = channel;
+      }
+
+      return channel;
+    },
+
+    _proxyMethods: function() {
+      _.each(['vent', 'commands', 'reqres'], function(system) {
+        _.each( messageSystems[system], function(method) {
+          this[system][method] = proxyMethod(this, system, method);
+        }, this);
+      }, this);
+    }
+  });
+
+
+  var messageSystems = {
+    vent: [
+      'on',
+      'off',
+      'trigger',
+      'once',
+      'stopListening',
+      'listenTo',
+      'listenToOnce'
+    ],
+
+    commands: [
+      'execute',
+      'setHandler',
+      'setHandlers',
+      'removeHandler',
+      'removeAllHandlers'
+    ],
+
+    reqres: [
+      'request',
+      'setHandler',
+      'setHandlers',
+      'removeHandler',
+      'removeAllHandlers'
+    ]
+  };
+
+  var proxyMethod = function(radio, system, method) {
+    return function(channelName) {
+      var messageSystem = radio._getChannel(channelName)[system];
+      var args = Array.prototype.slice.call(arguments, 1);
+
+      messageSystem[method].apply(messageSystem, args);
+    };
+  };
+
+  return new Radio();
+
+})(Wreqr);
 
 
   return Wreqr;
@@ -14183,7 +14332,7 @@ Backbone.ChildViewContainer = (function(Backbone, _){
 
 // MarionetteJS (Backbone.Marionette)
 // ----------------------------------
-// v1.7.3
+// v1.7.4
 //
 // Copyright (c)2014 Derick Bailey, Muted Solutions, LLC.
 // Distributed under MIT license
@@ -16061,7 +16210,8 @@ Marionette.Behaviors = (function(Marionette, _) {
         _.each(_.keys(behaviorEvents), function(key) {
           // append white-space at the end of each key to prevent behavior key collisions
           // this is relying on the fact backbone events considers "click .foo" the same  "click .foo "
-          var whitespace = (new Array(i+1)).join(" ");
+          // starts with an array of two so the first behavior has one space
+          var whitespace = (new Array(i+2)).join(" ");
           var eventKey   = key + whitespace;
           var handler    = _.isFunction(behaviorEvents[key]) ? behaviorEvents[key] : b[behaviorEvents[key]];
 
@@ -16385,8 +16535,6 @@ _.extend(Marionette.Module.prototype, Backbone.Events, {
     this._initializerCallbacks.reset();
     this._finalizerCallbacks.reset();
 
-    this.stopListening();
-
     Marionette.triggerMethod.call(this, "stop");
   },
 
@@ -16486,49 +16634,62 @@ _.extend(Marionette.Module, {
     return moduleDefinition.moduleClass || ModuleClass;
   },
 
+  // Add the module definition and add a startWithParent initializer function.
+  // This is complicated because module definitions are heavily overloaded
+  // and support an anonymous function, module class, or options object
   _addModuleDefinition: function(parentModule, module, def, args){
-    var fn;
-    var startWithParent;
+    var fn = this._getDefine(def);
+    var startWithParent = this._getStartWithParent(def, module);
 
-    if (_.isFunction(def) && !(def.prototype instanceof Marionette.Module)){
-      // if a function is supplied for the module definition
-      fn = def;
-      startWithParent = true;
-
-    } else if (_.isObject(def)){
-      // if an object is supplied
-      fn = def.define;
-      startWithParent = !_.isUndefined(def.startWithParent) ? def.startWithParent : true;
-
-    } else {
-      // if nothing is supplied
-      startWithParent = true;
-    }
-
-    // add module definition if needed
     if (fn){
       module.addDefinition(fn, args);
     }
 
-    // `and` the two together, ensuring a single `false` will prevent it
-    // from starting with the parent
-    module.startWithParent = module.startWithParent && startWithParent;
+    this._addStartWithParent(parentModule, module, startWithParent);
+  },
 
-    // setup auto-start if needed
-    if (module.startWithParent && !module.startWithParentIsConfigured){
+  _getStartWithParent: function(def, module) {
+    var swp;
 
-      // only configure this once
-      module.startWithParentIsConfigured = true;
-
-      // add the module initializer config
-      parentModule.addInitializer(function(options){
-        if (module.startWithParent){
-          module.start(options);
-        }
-      });
-
+    if (_.isFunction(def) && (def.prototype instanceof Marionette.Module)) {
+      swp = module.constructor.prototype.startWithParent;
+      return _.isUndefined(swp) ? true : swp;
     }
 
+    if (_.isObject(def)){
+      swp = def.startWithParent;
+      return _.isUndefined(swp) ? true : swp;
+    }
+
+    return true;
+  },
+
+  _getDefine: function(def) {
+    if (_.isFunction(def) && !(def.prototype instanceof Marionette.Module)) {
+      return def;
+    }
+
+    if (_.isObject(def)){
+      return def.define;
+    }
+
+    return null;
+  },
+
+  _addStartWithParent: function(parentModule, module, startWithParent) {
+    module.startWithParent = module.startWithParent && startWithParent;
+
+    if (!module.startWithParent || !!module.startWithParentIsConfigured){
+      return;
+    }
+
+    module.startWithParentIsConfigured = true;
+
+    parentModule.addInitializer(function(options){
+      if (module.startWithParent){
+        module.start(options);
+      }
+    });
   }
 });
 
@@ -21365,7 +21526,7 @@ define('hbs',[
 ;
 
 /* START_TEMPLATE */
-define('hbs!marionette-components/templates/modal/modal-no-footer-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
+define('hbs!js/components/modal/templates/modal-no-footer-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
 var t = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers);
@@ -21378,17 +21539,19 @@ return t;
 });
 /* END_TEMPLATE */
 ;
-define('marionette-components/components/modal/views/modal-no-footer-view',[
-    'underscore',
-    'jquery',
-    'marionette',
-    'hbs!marionette-components/templates/modal/modal-no-footer-template'
-], function(
-    _,
-    $,
-    Marionette,
-    ModalNoFooterTemplate
-) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define('js/components/modal/views/modal-no-footer-view',['underscore', 'jquery', 'marionette', 'hbs!../templates/modal-no-footer-template'], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('underscore'),
+            require('jquery'),
+            require('backbone.marionette'),
+            require('../templates/modal-no-footer-template.hbs')
+        );
+    }
+})(this, function(_, $, Marionette, ModalNoFooterTemplate) {
+
     return Marionette.Layout.extend({
         template: ModalNoFooterTemplate,
 
@@ -21396,7 +21559,7 @@ define('marionette-components/components/modal/views/modal-no-footer-view',[
 
         className: 'mc-modal',
 
-        regions:  {
+        regions: {
             header: 'header',
             content: 'section'
         },
@@ -21479,7 +21642,7 @@ define('marionette-components/components/modal/views/modal-no-footer-view',[
 });
 
 /* START_TEMPLATE */
-define('hbs!marionette-components/templates/modal/modal-header-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
+define('hbs!js/components/modal/templates/modal-header-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
 var t = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers);
@@ -21497,38 +21660,40 @@ return t;
 });
 /* END_TEMPLATE */
 ;
-define('marionette-components/components/modal/views/modal-header-view',[
-    'underscore',
-    'marionette',
-    'hbs!marionette-components/templates/modal/modal-header-template'
-], function(
-    _,
-    Marionette,
-    ModalNoFooterTemplate
-) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define('js/components/modal/views/modal-header-view',['underscore', 'marionette', 'hbs!../templates/modal-header-template'], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('underscore'),
+            require('backbone.marionette'),
+            require('../templates/modal-header-template.hbs')
+        );
+    }
+})(this, function(_, Marionette, ModalNoFooterTemplate) {
+
     return Marionette.ItemView.extend({
         template: ModalNoFooterTemplate,
         title: '',
 
         serializeData: function() {
             return {
-                title: Marionette.getOption(this, 'title')
+                title: this.getOption('title')
             };
         }
     });
 });
-
-define('marionette-components/components/modal/views/modal-html-content-view',[
-    'underscore',
-    'marionette'
-], function(
-    _,
-    Marionette
-) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define('js/components/modal/views/modal-html-content-view',['underscore', 'marionette'], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(require('underscore'), require('backbone.marionette'));
+    }
+})(this, function(_, Marionette) {
     return Marionette.ItemView.extend({
         content: '',
         template: function() {
-            return Marionette.getOption(this, 'content');
+            return this.getOption('content');
         },
 
         initialize: function() {
@@ -21536,11 +21701,17 @@ define('marionette-components/components/modal/views/modal-html-content-view',[
         }
     });
 });
-define('marionette-components/utils/errors',[], function() {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define('js/utils/errors',[], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory();
+    }
+})(this, function() {
+
     return {
         /**
          * Throws an error
-         * (taken from Marionette source code)
          * @param  {String} message description of the error
          * @param  {String} name    name of the error
          */
@@ -21551,23 +21722,30 @@ define('marionette-components/utils/errors',[], function() {
         }
     };
 });
-define('marionette-components/components/modal/modal-no-footer',[
-    'jquery',
-    'underscore',
-    'marionette',
-    'marionette-components/components/modal/views/modal-no-footer-view',
-    'marionette-components/components/modal/views/modal-header-view',
-    'marionette-components/components/modal/views/modal-html-content-view',
-    'marionette-components/utils/errors'
-], function(
-    $,
-    _,
-    Marionette,
-    ModalNoFooterView,
-    ModalHeaderView,
-    ModalHtmlContentView,
-    ErrorsUtils
-) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define('js/components/modal/modal-no-footer',[
+            'jquery',
+            'underscore',
+            'marionette',
+            './views/modal-no-footer-view',
+            './views/modal-header-view',
+            './views/modal-html-content-view',
+            '../../utils/errors'
+        ], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('jquery'),
+            require('underscore'),
+            require('backbone.marionette'),
+            require('./views/modal-no-footer-view'),
+            require('./views/modal-header-view'),
+            require('./views/modal-html-content-view'),
+            require('../../utils/errors')
+        );
+    }
+})(this, function($, _, Marionette, ModalNoFooterView, ModalHeaderView, ModalHtmlContentView, ErrorsUtils) {
+
     return Marionette.Controller.extend({
 
         closeOnHidden: true,
@@ -21596,7 +21774,8 @@ define('marionette-components/components/modal/modal-no-footer',[
             var container = Marionette.getOption(this, 'container');
 
             if (!container) {
-                ErrorsUtils.throwError('A `container` must be specified', 'NoContainerError');
+                ErrorsUtils.throwError('A `container` must be specified',
+                    'NoContainerError');
             }
 
             return $(container);
@@ -21751,7 +21930,7 @@ define('marionette-components/components/modal/modal-no-footer',[
 });
 
 /* START_TEMPLATE */
-define('hbs!marionette-components/templates/modal/modal-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
+define('hbs!js/components/modal/templates/modal-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
 var t = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers);
@@ -21764,17 +21943,19 @@ return t;
 });
 /* END_TEMPLATE */
 ;
-define('marionette-components/components/modal/views/modal-view',[
-    'underscore',
-    'marionette',
-    'marionette-components/components/modal/views/modal-no-footer-view',
-    'hbs!marionette-components/templates/modal/modal-template'
-], function(
-    _,
-    Marionette,
-    ModalNoFooterView,
-    ModalTemplate
-) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define('js/components/modal/views/modal-view',['underscore', 'marionette', './modal-no-footer-view', 'hbs!../templates/modal-template'], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('underscore'),
+            require('backbone.marionette'),
+            require('./modal-no-footer-view'),
+            require('../templates/modal-template.hbs')
+        );
+    }
+})(this, function(_, Marionette, ModalNoFooterView, ModalTemplate) {
+
     return ModalNoFooterView.extend({
         template: ModalTemplate,
 
@@ -21782,16 +21963,12 @@ define('marionette-components/components/modal/views/modal-view',[
             header: 'header',
             content: 'section',
             footer: 'footer'
-        },
-
-        initialize: function(options) {
-            ModalNoFooterView.prototype.initialize.call(this, options);
         }
     });
 });
 
 /* START_TEMPLATE */
-define('hbs!marionette-components/templates/modal/modal-buttons-footer-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
+define('hbs!js/components/modal/templates/modal-buttons-footer-template',['hbs','hbs/handlebars'], function( hbs, Handlebars ){ 
 var t = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers);
@@ -21894,15 +22071,17 @@ return t;
 });
 /* END_TEMPLATE */
 ;
-define('marionette-components/components/modal/views/modal-buttons-footer-view',[
-    'underscore',
-    'marionette',
-    'hbs!marionette-components/templates/modal/modal-buttons-footer-template'
-], function(
-    _,
-    Marionette,
-    ModalButtonsFooterTemplate
-) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define('js/components/modal/views/modal-buttons-footer-view',['underscore', 'marionette', 'hbs!../templates/modal-buttons-footer-template'], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('underscore'),
+            require('backbone.marionette'),
+            require('../templates/modal-buttons-footer-template.hbs')
+        );
+    }
+})(this, function(_, Marionette, ModalButtonsFooterTemplate) {
     return Marionette.ItemView.extend({
         template: ModalButtonsFooterTemplate,
 
@@ -21911,9 +22090,9 @@ define('marionette-components/components/modal/views/modal-buttons-footer-view',
             secondaryAction: '[data-secondary]',
         },
 
-        triggers: {
-            'click @ui.primaryAction' : 'modal:primary-click',
-            'click @ui.secondaryAction' : 'modal:secondary-click'
+        triggers:  {
+            'click @ui.primaryAction': 'modal:primary-click',
+            'click @ui.secondaryAction': 'modal:secondary-click'
         },
 
         primaryActionText: 'OK',
@@ -21928,34 +22107,41 @@ define('marionette-components/components/modal/views/modal-buttons-footer-view',
 
         serializeData: function() {
             return {
-                primaryActionText: Marionette.getOption(this, 'primaryActionText'),
-                primaryTagName: Marionette.getOption(this, 'primaryTagName'),
-                primaryClassName: Marionette.getOption(this, 'primaryClassName'),
-                secondaryActionText: Marionette.getOption(this, 'secondaryActionText'),
-                secondaryTagName: Marionette.getOption(this, 'secondaryTagName'),
-                secondaryClassName: Marionette.getOption(this, 'secondaryClassName'),
-                primaryFirst: Marionette.getOption(this, 'primaryFirst'),
-                hasSecondary: Marionette.getOption(this, 'hasSecondary')
+                primaryActionText: this.getOption('primaryActionText'),
+                primaryTagName: this.getOption('primaryTagName'),
+                primaryClassName: this.getOption('primaryClassName'),
+                secondaryActionText: this.getOption('secondaryActionText'),
+                secondaryTagName: this.getOption('secondaryTagName'),
+                secondaryClassName: this.getOption('secondaryClassName'),
+                primaryFirst: this.getOption('primaryFirst'),
+                hasSecondary: this.getOption('hasSecondary')
             };
         }
     });
 });
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define('js/components/modal/modal',[
+                'underscore',
+                'marionette',
+                './modal-no-footer',
+                './views/modal-view',
+                './views/modal-buttons-footer-view',
+                '../../utils/errors'
+            ],
+            factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('underscore'),
+            require('backbone.marionette'),
+            require('./modal-no-footer'),
+            require('./views/modal-view'),
+            require('./view/modal-buttons-footer-view'),
+            require('../../utils/errors')
+        );
+    }
+})(this, function(_, Marionette, ModalNoFooter, ModalView, ModalButtonsFooterView, ErrorsUtils) {
 
-define('marionette-components/components/modal/modal',[
-    'underscore',
-    'marionette',
-    'marionette-components/components/modal/modal-no-footer',
-    'marionette-components/components/modal/views/modal-view',
-    'marionette-components/components/modal/views/modal-buttons-footer-view',
-    'marionette-components/utils/errors'
-], function(
-    _,
-    Marionette,
-    ModalNoFooter,
-    ModalView,
-    ModalButtonsFooterView,
-    ErrorsUtils
-) {
     return ModalNoFooter.extend({
         modalView: ModalView,
 
@@ -22029,19 +22215,20 @@ define('marionette-components/components/modal/modal',[
         },
     });
 });
-define('marionette-components/components/modal/modal-ajax-no-footer',[
-    'jquery',
-    'underscore',
-    'marionette',
-    'marionette-components/components/modal/modal-no-footer',
-    'marionette-components/utils/errors'
-], function(
-    $,
-    _,
-    Marionette,
-    ModalNoFooter,
-    ErrorsUtils
-) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define('js/components/modal/modal-ajax-no-footer',['jquery', 'underscore', 'marionette', './modal-no-footer', '../../utils/errors'], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('jquery'),
+            require('underscore'),
+            require('backbone.marionette'),
+            require('./modal-no-footer'),
+            require('../../utils/errors')
+        );
+    }
+})(this, function($, _, Marionette, ModalNoFooter, ErrorsUtils) {
+
     return Marionette.Controller.extend({
         modal: ModalNoFooter,
 
@@ -22104,26 +22291,32 @@ define('marionette-components/components/modal/modal-ajax-no-footer',[
         }
     });
 });
-define('marionette-components/components/modal/modal-ajax',[
-    'marionette-components/components/modal/modal-ajax-no-footer',
-    'marionette-components/components/modal/modal'
-], function(
-    ModalAjaxNoFooter,
-    Modal
-) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define('js/components/modal/modal-ajax',['./modal-ajax-no-footer', './modal'], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('.modal-ajax-no-footer'),
+            require('./modal')
+        );
+    }
+})(this, function(ModalAjaxNoFooter, Modal) {
+
+    var ModalAjaxNoFooter = require('./modal-ajax-no-footer');
+    var Modal = require('./modal');
     return ModalAjaxNoFooter.extend({
         modal: Modal
     });
 });
 define('js/marionette-components',[
-    'marionette-components/components/modal/modal',
-    'marionette-components/components/modal/modal-no-footer',
-    'marionette-components/components/modal/modal-ajax',
-    'marionette-components/components/modal/modal-ajax-no-footer',
-    'marionette-components/components/modal/views/modal-no-footer-view',
-    'marionette-components/components/modal/views/modal-view',
-    'marionette-components/components/modal/views/modal-header-view',
-    'marionette-components/components/modal/views/modal-buttons-footer-view'
+    './components/modal/modal',
+    './components/modal/modal-no-footer',
+    './components/modal/modal-ajax',
+    './components/modal/modal-ajax-no-footer',
+    './components/modal/views/modal-no-footer-view',
+    './components/modal/views/modal-view',
+    './components/modal/views/modal-header-view',
+    './components/modal/views/modal-buttons-footer-view'
 ], function(
     Modal,
     ModalNoFooter,

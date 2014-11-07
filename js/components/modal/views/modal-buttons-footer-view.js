@@ -1,11 +1,11 @@
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
-        define(['underscore', 'marionette', 'hbs!../templates/modal/modal-buttons-footer-template'], factory);
+        define(['underscore', 'marionette', 'hbs!../templates/modal-buttons-footer-template'], factory);
     } else if (typeof exports === "object") {
         module.exports = factory(
             require('underscore'),
             require('backbone.marionette'),
-            require('../templates/modal/modal-buttons-footer-template.hbs')
+            require('../templates/modal-buttons-footer-template.hbs')
         );
     }
 })(this, function(_, Marionette, ModalButtonsFooterTemplate) {

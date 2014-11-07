@@ -1,18 +1,27 @@
 (function(root, factory) {
-  if (typeof define === "function" && define.amd) {
-    define(['require', 'jquery', 'underscore', 'marionette', './views/modal-no-footer-view', './views/modal-header-view', './views/modal-html-content-view', '../../utils/errors'], factory);
-  } else if (typeof exports === "object") {
-    module.exports = factory(require);
-  }
-})(this, function(require) {
+    if (typeof define === "function" && define.amd) {
+        define([
+            'jquery',
+            'underscore',
+            'marionette',
+            './views/modal-no-footer-view',
+            './views/modal-header-view',
+            './views/modal-html-content-view',
+            '../../utils/errors'
+        ], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('jquery'),
+            require('underscore'),
+            require('backbone.marionette'),
+            require('./views/modal-no-footer-view'),
+            require('./views/modal-header-view'),
+            require('./views/modal-html-content-view'),
+            require('../../utils/errors')
+        );
+    }
+})(this, function($, _, Marionette, ModalNoFooterView, ModalHeaderView, ModalHtmlContentView, ErrorsUtils) {
 
-var $ = require('jquery');
-var _ = require('underscore');
-var Marionette = require('marionette');
-var ModalNoFooterView = require('./views/modal-no-footer-view');
-var ModalHeaderView = require('./views/modal-header-view');
-var ModalHtmlContentView = require('./views/modal-html-content-view');
-var ErrorsUtils = require('../../utils/errors');
     return Marionette.Controller.extend({
 
         closeOnHidden: true,
@@ -41,7 +50,8 @@ var ErrorsUtils = require('../../utils/errors');
             var container = Marionette.getOption(this, 'container');
 
             if (!container) {
-                ErrorsUtils.throwError('A `container` must be specified', 'NoContainerError');
+                ErrorsUtils.throwError('A `container` must be specified',
+                    'NoContainerError');
             }
 
             return $(container);

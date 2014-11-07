@@ -1,119 +1,124 @@
-'use strict';
-
-var Marionette = require('backbone.marionette'),
-  _ = require('underscore');
-
-
-module.exports = Marionette.Controller.extend({
-  /**
-   * Constructor to use to instantiate the view
-   * Cannot be a function.
-   * Can be overriden by options at instantiation.
-   * @type {Function}
-   */
-  viewClass: Marionette.ItemView,
-
-  /**
-   * Options passed the the view on instantiation
-   * Can be a function.
-   * Can be overriden by options at instantiation.
-   * @type {Object}
-   */
-  viewOptions: {},
-
-  /**
-   * Events bindings similar as what a view does with DOM Events
-   * Can be a function.
-   * Can be overriden by options at instantiation.
-   * @type {Object}
-   *
-   * @example
-   *
-   * viewEvents: {
-   *   'model:save': 'saveModel',
-   *   'model:delete': 'deleteModel'
-   * },
-   *
-   * saveModel: function(model){
-   *   model.save();
-   * },
-   *
-   * deleteModel: function(model){
-   *   model.delete();
-   * }
-   */
-  viewEvents: {},
-
-  /**
-   * Determines if the controller is destroyed when the view is.
-   * Cannot be a function.
-   * Can be overriden by options at instantiation.
-   * @type {Boolean}
-   */
-  isDestroyedWithView: false,
-
-  getViewClass: function() {
-    return this.getOption('viewClass');
-  },
-
-  getViewOptions: function() {
-    var options = this.getOption('viewOptions');
-
-    if (_.isFunction(options)) {
-      options = options.call(this);
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define(['underscore', 'marionette'], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(require('underscore'), require('backbone.marionette'));
     }
+})(this, function(_, Marionette) {
 
-    return options || {};
-  },
+    'use strict';
 
-  getViewEvents: function() {
-    var events = this.getOption('viewEvents');
+    return Marionette.Controller.extend({
+        /**
+         * Constructor to use to instantiate the view
+         * Cannot be a function.
+         * Can be overriden by options at instantiation.
+         * @type {Function}
+         */
+        viewClass: Marionette.ItemView,
 
-    if (_.isFunction(events)) {
-      events = events.call(this);
-    }
+        /**
+         * Options passed the the view on instantiation
+         * Can be a function.
+         * Can be overriden by options at instantiation.
+         * @type {Object}
+         */
+        viewOptions: {},
 
-    return events || {};
-  },
+        /**
+         * Events bindings similar as what a view does with DOM Events
+         * Can be a function.
+         * Can be overriden by options at instantiation.
+         * @type {Object}
+         *
+         * @example
+         *
+         * viewEvents: {
+         *   'model:save': 'saveModel',
+         *   'model:delete': 'deleteModel'
+         * },
+         *
+         * saveModel: function(model){
+         *   model.save();
+         * },
+         *
+         * deleteModel: function(model){
+         *   model.delete();
+         * }
+         */
+        viewEvents: {},
 
-  buildView: function() {
-    var viewOptions = this.getViewOptions();
-    var ViewClass = this.getViewClass();
+        /**
+         * Determines if the controller is destroyed when the view is.
+         * Cannot be a function.
+         * Can be overriden by options at instantiation.
+         * @type {Boolean}
+         */
+        isDestroyedWithView: false,
 
-    var view = new ViewClass(viewOptions);
-    this.bindEvents(view);
+        getViewClass: function() {
+            return this.getOption('viewClass');
+        },
 
-    return view;
-  },
+        getViewOptions: function() {
+            var options = this.getOption('viewOptions');
 
-  bindEvents: function(view) {
-    this.viewEvents = this.getViewEvents();
-    Marionette.bindEntityEvents(this, view, this.viewEvents);
+            if (_.isFunction(options)) {
+                options = options.call(this);
+            }
 
-    // replace onBindEvents if it came from the options
-    this.onBindEvents = this.getOption('onBindEvents');
+            return options || {};
+        },
 
-    // this triggers the `'bind:events'` event and calls `onBindEvents`
-    this.triggerMethod('bind:events', view);
-  },
+        getViewEvents: function() {
+            var events = this.getOption('viewEvents');
 
-  onBindEvents: function( /*view*/ ) {},
+            if (_.isFunction(events)) {
+                events = events.call(this);
+            }
 
-  getView: function() {
-    if (!this.view || this.view.isDestroyed) {
-      this.view = this.buildView();
+            return events || {};
+        },
 
-      if (this.getOption('isDestroyedWithView')) {
-        this.listenTo(this.view, 'destroy', this.destroy);
-      }
-    }
+        buildView: function() {
+            var viewOptions = this.getViewOptions();
+            var ViewClass = this.getViewClass();
 
-    return this.view;
-  },
+            var view = new ViewClass(viewOptions);
+            this.bindEvents(view);
 
-  onDestroy: function() {
-    if (this.view && !this.view.isDestroyed) {
-      this.view.destroy();
-    }
-  }
+            return view;
+        },
+
+        bindEvents: function(view) {
+            this.viewEvents = this.getViewEvents();
+            Marionette.bindEntityEvents(this, view, this.viewEvents);
+
+            // replace onBindEvents if it came from the options
+            this.onBindEvents = this.getOption('onBindEvents');
+
+            // this triggers the `'bind:events'` event and calls `onBindEvents`
+            this.triggerMethod('bind:events', view);
+        },
+
+        onBindEvents: function( /*view*/ ) {},
+
+        getView: function() {
+            if (!this.view || this.view.isDestroyed) {
+                this.view = this.buildView();
+
+                if (this.getOption('isDestroyedWithView')) {
+                    this.listenTo(this.view, 'destroy', this.destroy);
+                }
+            }
+
+            return this.view;
+        },
+
+        onDestroy: function() {
+            if (this.view && !this.view.isDestroyed) {
+                this.view.destroy();
+            }
+        }
+    });
 });

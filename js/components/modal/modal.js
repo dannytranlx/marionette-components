@@ -1,17 +1,26 @@
 (function(root, factory) {
-  if (typeof define === "function" && define.amd) {
-    define(['require', 'underscore', 'marionette', './modal-no-footer', './views/modal-view', './views/modal-buttons-footer-view', '../../utils/errors'], factory);
-  } else if (typeof exports === "object") {
-    module.exports = factory(require);
-  }
-})(this, function(require) {
+    if (typeof define === "function" && define.amd) {
+        define([
+                'underscore',
+                'marionette',
+                './modal-no-footer',
+                './views/modal-view',
+                './views/modal-buttons-footer-view',
+                '../../utils/errors'
+            ],
+            factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('underscore'),
+            require('backbone.marionette'),
+            require('./modal-no-footer'),
+            require('./views/modal-view'),
+            require('./view/modal-buttons-footer-view'),
+            require('../../utils/errors')
+        );
+    }
+})(this, function(_, Marionette, ModalNoFooter, ModalView, ModalButtonsFooterView, ErrorsUtils) {
 
-var _ = require('underscore');
-var Marionette = require('marionette');
-var ModalNoFooter = require('./modal-no-footer');
-var ModalView = require('./views/modal-view');
-var ModalButtonsFooterView = require('./views/modal-buttons-footer-view');
-var ErrorsUtils = require('../../utils/errors');
     return ModalNoFooter.extend({
         modalView: ModalView,
 
