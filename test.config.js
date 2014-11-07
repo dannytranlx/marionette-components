@@ -12,7 +12,7 @@ Object.keys(window.__karma__.files).forEach(function(file) {
     }
 });
 
-requirejs.config({
+require.config({
     baseUrl: '/base',
     // dynamically load all test files
     deps: allTestFiles,

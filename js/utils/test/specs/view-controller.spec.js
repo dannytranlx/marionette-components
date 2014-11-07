@@ -1,10 +1,10 @@
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
-        define(['underscore', 'marionette'], factory);
+        define(['underscore', 'marionette', '../../view-controller'], factory);
     } else if (typeof exports === "object") {
-        module.exports = factory(require('underscore'), require('backbone.marionette'));
+        module.exports = factory(require('underscore'), require('backbone.marionette'), require('../../view-controller'));
     }
-})(this, function(_, Marionette) {
+})(this, function(_, Marionette, ViewController) {
     describe.only('ViewController', function() {
         'use strict';
 
