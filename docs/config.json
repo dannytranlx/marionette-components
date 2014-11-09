@@ -1,0 +1,20 @@
+{
+    "locals": {
+        "url": "http://localhost:8080",
+        "name": "Marionette Components",
+        "author": "Marc-Antoine Lemieux",
+        "description": "Reusable components for your Marionette projects"
+    },
+    "plugins": [
+        "wintersmith-nunjucks"
+    ],
+    "require": {
+        "moment": "moment",
+        "_": "underscore",
+        "typogr": "typogr"
+    },
+    "markdown": {
+        "smartLists": true,
+        "smartypants": true
+    }
+}
