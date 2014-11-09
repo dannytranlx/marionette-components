@@ -3,6 +3,8 @@
   <head>
     <!-- Meta, title, CSS, favicons, etc. -->
     {% include 'header.html' %}
+    {% block styles %}
+    {% endblock %}
   </head>
   <body>
     <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
@@ -13,8 +15,8 @@
     <!-- Docs page layout -->
     <div class="bs-docs-header" id="content">
       <div class="container">
-        <h1>{{ title }}</h1>
-        <p>{{ subtitle }}</p>
+        <h1>{{ page.title }}</h1>
+        <p>{{ page.metadata.subtitle }}</p>
       </div>
     </div>
 
@@ -27,25 +29,25 @@
         <div class="col-md-3">
           <div class="bs-docs-sidebar hidden-print" role="complementary">
             <ul class="nav bs-docs-sidenav">
-              {% if slug == "getting-started" %}
+              {% if page.metadata.slug == "getting-started" %}
                 {% include 'nav/getting-started.html' %}
               {% endif %}
-              {%if slug == "css" %}
+              {%if page.metadata.slug == "css" %}
                 {% include 'nav/css.html' %}
               {% endif %}
-              {%if slug == "components" %}
+              {%if page.metadata.slug == "components" %}
                 {% include 'nav/components.html' %}
               {% endif %}
-              {%if slug == "js" %}
+              {%if page.metadata.slug == "js" %}
                 {% include 'nav/javascript.html' %}
               {% endif %}
-              {%if slug == "customize" %}
+              {%if page.metadata.slug == "customize" %}
                 {% include 'nav/customize.html' %}
               {% endif %}
-              {%if slug == "about" %}
+              {%if page.metadata.slug == "about" %}
                 {% include 'nav/about.html' %}
               {% endif %}
-              {%if slug == "migration" %}
+              {%if page.metadata.slug == "migration" %}
                 {% include 'nav/migration.html' %}
               {% endif %}
             </ul>
@@ -59,5 +61,6 @@
     </div>
 
     {% include 'footer.html' %}
+    {% block scripts %}{% endblock %}
   </body>
 </html>

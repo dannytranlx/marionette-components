@@ -3,10 +3,15 @@
         "url": "http://localhost:8080",
         "name": "Marionette Components",
         "author": "Marc-Antoine Lemieux",
-        "description": "Reusable components for your Marionette projects"
+        "description": "Reusable components for your Marionette projects",
+        "site": {
+            "current_version": "0.0.1",
+            "repo": "https://github.com/marionette-components/marionette-components"
+        }
     },
     "plugins": [
-        "wintersmith-nunjucks"
+        "wintersmith-nunjucks",
+        "wintersmith-livereload"
     ],
     "require": {
         "moment": "moment",

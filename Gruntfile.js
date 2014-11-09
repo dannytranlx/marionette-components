@@ -86,14 +86,6 @@ module.exports = function(grunt) {
             }
         },
 
-        compass: {
-            dist: {
-                outputStyle: 'compressed',
-                sassDir: 'scss',
-                cssDir: 'dist/css',
-            }
-        },
-
         copy: {
             docs: {
                 files: [{
@@ -112,19 +104,6 @@ module.exports = function(grunt) {
                     dest: 'docs/assets/js/require.js'
                 }]
             }
-        },
-
-        connect: {
-            server: {
-                options: {
-                    port: 3000,
-                    base: '_site'
-                }
-            }
-        },
-
-        jekyll: {
-            docs: {}
         },
 
         validation: {
@@ -155,18 +134,7 @@ module.exports = function(grunt) {
                 ],
                 tasks: ['jshint:src', 'dist']
             },
-            jekyll: {
-                files: [
-                    'docs/**/*',
-                    '!docs/dist/',
-                    '!docs/assets/js/**/*.{js,frag}'
-                ],
-                tasks: ['jekyll']
-            },
-            test: {
-                files: '<%= jshint.test.src %>',
-                tasks: ['jshint:test']
-            },
+
             scss: {
                 files: 'scss/**/*.scss',
                 tasks: 'dist'
@@ -184,6 +152,11 @@ module.exports = function(grunt) {
             unit: {
                 configFile: 'karma.conf.js',
                 singleRun: false,
+                runnerPort: 9998
+            },
+            build: {
+                configFile: 'karma.conf.js',
+                singleRun: true,
                 runnerPort: 9998
             }
         },
@@ -291,6 +264,30 @@ module.exports = function(grunt) {
                 }
             }
         },
+        wintersmith: {
+            options: {
+                config: 'docs/config.json'
+            },
+            build: {},
+            preview: {
+                options: {
+                    action: "preview"
+                }
+            }
+        },
+
+        concurrent: {
+            dev: {
+                tasks: [
+                    'watch',
+                    'wintersmith:preview',
+                ],
+                options: {
+                    logConcurrentOutput: true
+                }
+            }
+        },
+
         'gh-pages': {
             options: {
                 base: '_site',
@@ -309,22 +306,22 @@ module.exports = function(grunt) {
     require('time-grunt')(grunt);
 
     // Docs HTML validation task
-    grunt.registerTask('validate-html', ['jekyll', 'validation']);
+    grunt.registerTask('validate-html', ['wintersmith:build', 'validation']);
 
     // JS distribution task.
     grunt.registerTask('dist-js', ['requirejs:source', 'requirejs:minified']);
     grunt.registerTask('dist-doc-js', ['concat:bootstrap', 'requirejs:docs_src', 'requirejs:docs']);
 
     // CSS distribution task.
-    grunt.registerTask('dist-css', ['compass']);
+    /*grunt.registerTask('dist-css', ['compass']);*/
 
     // Full distribution task.
-    grunt.registerTask('dist', ['clean', 'dist-css', 'dist-js', 'copy:docs', 'dist-doc-js', 'jekyll']);
+    grunt.registerTask('dist', ['clean', /*'dist-css', */ 'dist-js', 'copy:docs', 'dist-doc-js', 'wintersmith:build']);
 
     // Default task.
-    grunt.registerTask('default', ['test', 'dist']);
+    grunt.registerTask('default', ['karma:build', 'dist']);
 
-    grunt.registerTask('dev', ['connect', 'watch']);
+    grunt.registerTask('dev', ['concurrent:dev']);
 
     grunt.registerTask('release', ['gh-pages']);
 

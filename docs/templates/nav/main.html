@@ -11,17 +11,14 @@
     </div>
     <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
       <ul class="nav navbar-nav">
-        <li{% if slug == "getting-started" %} class="active"{% endif %}>
-          <a href="../getting-started">Getting started</a>
+        <li{% if page.metadata.slug == "getting-started" %} class="active"{% endif %}>
+          <a href="../getting-started.html">Getting started</a>
         </li>
-        <li{% if slug == "css" %} class="active"{% endif %}>
-          <a href="../css">CSS</a>
+        <li{% if page.metadata.slug == "components" %} class="active"{% endif %}>
+          <a href="../components.html">Components</a>
         </li>
-        <li{% if slug == "components" %} class="active"{% endif %}>
-          <a href="../components">Components</a>
-        </li>
-        <li{% if slug == "js" %} class="active"{% endif %}>
-          <a href="../javascript">JavaScript</a>
+        <li{% if page.metadata.slug == "components" %} class="active"{% endif %}>
+          <a href="../download.html">Download</a>
         </li>
       </ul>
     </nav>
