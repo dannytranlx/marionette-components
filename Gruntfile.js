@@ -180,6 +180,16 @@ module.exports = function(grunt) {
             }
         },
 
+        karma: {
+            unit: {
+                configFile: 'karma.conf.js',
+                singleRun: false,
+                reporters: 'progress',
+                runnerPort: 9998
+            }
+        },
+
+
         sed: {
             versionNumber: {
                 pattern: (function() {
@@ -216,7 +226,7 @@ module.exports = function(grunt) {
                     almond: true,
                     baseUrl: '.',
                     include: ['js/marionette-components'],
-                    mainConfigFile: 'js/config.js',
+                    mainConfigFile: 'require.config.js',
                     name: 'bower_components/almond/almond',
                     out: 'dist/js/<%= pkg.name %>.min.js',
                     optimize: 'uglify2',
@@ -235,7 +245,7 @@ module.exports = function(grunt) {
                     almond: true,
                     baseUrl: '.',
                     include: ['js/marionette-components'],
-                    mainConfigFile: 'js/config.js',
+                    mainConfigFile: 'require.config.js',
                     name: 'bower_components/almond/almond',
                     out: 'dist/js/<%= pkg.name %>.js',
                     wrap: {
@@ -251,7 +261,7 @@ module.exports = function(grunt) {
                     almond: true,
                     baseUrl: '.',
                     include: ['docs/assets/js/_src/application'],
-                    mainConfigFile: 'js/config.js',
+                    mainConfigFile: 'require.config.js',
                     name: 'bower_components/almond/almond',
                     out: 'docs/assets/js/docs.min.js',
                     optimize: 'uglify2',
@@ -271,7 +281,7 @@ module.exports = function(grunt) {
                     almond: true,
                     baseUrl: '.',
                     include: ['docs/assets/js/_src/application'],
-                    mainConfigFile: 'js/config.js',
+                    mainConfigFile: 'require.config.js',
                     name: 'bower_components/almond/almond',
                     out: 'docs/assets/js/docs.js',
                     optimize: 'none',
@@ -280,16 +290,15 @@ module.exports = function(grunt) {
                         endFile: 'docs/assets/js/_src/end.js.frag'
                     }
                 }
-            },
-
-            'gh-pages': {
-                options: {
-                    base: '_site',
-                    repo: 'git@github.com:marionette-components/marionette-components.github.io.git',
-                    branch: 'master'
-                },
-                src: ['**']
             }
+        },
+        'gh-pages': {
+            options: {
+                base: '_site',
+                repo: 'git@github.com:marionette-components/marionette-components.github.io.git',
+                branch: 'master'
+            },
+            src: ['**']
         }
     });
 
@@ -299,18 +308,6 @@ module.exports = function(grunt) {
         scope: 'devDependencies'
     });
     require('time-grunt')(grunt);
-
-    // Test task.
-    var testSubtasks = [];
-    // Skip core tests if running a different subset of the test suite
-    if (!process.env.TWBS_TEST || process.env.TWBS_TEST === 'core') {
-        testSubtasks = testSubtasks.concat(['dist-css', 'jshint', 'jscs']);
-    }
-    // Skip HTML validation if running a different subset of the test suite
-    if (!process.env.TWBS_TEST || process.env.TWBS_TEST === 'validate-html') {
-        testSubtasks.push('validate-html');
-    }
-    grunt.registerTask('test', testSubtasks);
 
     // Docs HTML validation task
     grunt.registerTask('validate-html', ['jekyll', 'validation']);

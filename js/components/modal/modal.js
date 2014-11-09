@@ -1,18 +1,26 @@
-define([
-    'underscore',
-    'marionette',
-    'marionette-components/components/modal/modal-no-footer',
-    'marionette-components/components/modal/views/modal-view',
-    'marionette-components/components/modal/views/modal-buttons-footer-view',
-    'marionette-components/utils/errors'
-], function(
-    _,
-    Marionette,
-    ModalNoFooter,
-    ModalView,
-    ModalButtonsFooterView,
-    ErrorsUtils
-) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define([
+                'underscore',
+                'marionette',
+                './modal-no-footer',
+                './views/modal-view',
+                './views/modal-buttons-footer-view',
+                '../../utils/errors'
+            ],
+            factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('underscore'),
+            require('backbone.marionette'),
+            require('./modal-no-footer'),
+            require('./views/modal-view'),
+            require('./view/modal-buttons-footer-view'),
+            require('../../utils/errors')
+        );
+    }
+})(this, function(_, Marionette, ModalNoFooter, ModalView, ModalButtonsFooterView, ErrorsUtils) {
+
     return ModalNoFooter.extend({
         modalView: ModalView,
 

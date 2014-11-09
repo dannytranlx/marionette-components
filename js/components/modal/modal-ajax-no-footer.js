@@ -1,16 +1,17 @@
-define([
-    'jquery',
-    'underscore',
-    'marionette',
-    'marionette-components/components/modal/modal-no-footer',
-    'marionette-components/utils/errors'
-], function(
-    $,
-    _,
-    Marionette,
-    ModalNoFooter,
-    ErrorsUtils
-) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define(['jquery', 'underscore', 'marionette', './modal-no-footer', '../../utils/errors'], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('jquery'),
+            require('underscore'),
+            require('backbone.marionette'),
+            require('./modal-no-footer'),
+            require('../../utils/errors')
+        );
+    }
+})(this, function($, _, Marionette, ModalNoFooter, ErrorsUtils) {
+
     return Marionette.Controller.extend({
         modal: ModalNoFooter,
 

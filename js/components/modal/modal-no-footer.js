@@ -1,20 +1,27 @@
-define([
-    'jquery',
-    'underscore',
-    'marionette',
-    'marionette-components/components/modal/views/modal-no-footer-view',
-    'marionette-components/components/modal/views/modal-header-view',
-    'marionette-components/components/modal/views/modal-html-content-view',
-    'marionette-components/utils/errors'
-], function(
-    $,
-    _,
-    Marionette,
-    ModalNoFooterView,
-    ModalHeaderView,
-    ModalHtmlContentView,
-    ErrorsUtils
-) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define([
+            'jquery',
+            'underscore',
+            'marionette',
+            './views/modal-no-footer-view',
+            './views/modal-header-view',
+            './views/modal-html-content-view',
+            '../../utils/errors'
+        ], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('jquery'),
+            require('underscore'),
+            require('backbone.marionette'),
+            require('./views/modal-no-footer-view'),
+            require('./views/modal-header-view'),
+            require('./views/modal-html-content-view'),
+            require('../../utils/errors')
+        );
+    }
+})(this, function($, _, Marionette, ModalNoFooterView, ModalHeaderView, ModalHtmlContentView, ErrorsUtils) {
+
     return Marionette.Controller.extend({
 
         closeOnHidden: true,
@@ -43,7 +50,8 @@ define([
             var container = Marionette.getOption(this, 'container');
 
             if (!container) {
-                ErrorsUtils.throwError('A `container` must be specified', 'NoContainerError');
+                ErrorsUtils.throwError('A `container` must be specified',
+                    'NoContainerError');
             }
 
             return $(container);

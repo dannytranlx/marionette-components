@@ -1,14 +1,16 @@
-define([
-    'underscore',
-    'jquery',
-    'marionette',
-    'hbs!marionette-components/templates/modal/modal-no-footer-template'
-], function(
-    _,
-    $,
-    Marionette,
-    ModalNoFooterTemplate
-) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define(['underscore', 'jquery', 'marionette', 'hbs!../templates/modal-no-footer-template'], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory(
+            require('underscore'),
+            require('jquery'),
+            require('backbone.marionette'),
+            require('../templates/modal-no-footer-template.hbs')
+        );
+    }
+})(this, function(_, $, Marionette, ModalNoFooterTemplate) {
+
     return Marionette.Layout.extend({
         template: ModalNoFooterTemplate,
 
