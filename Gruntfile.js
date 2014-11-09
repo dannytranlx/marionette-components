@@ -184,7 +184,6 @@ module.exports = function(grunt) {
             unit: {
                 configFile: 'karma.conf.js',
                 singleRun: false,
-                reporters: 'progress',
                 runnerPort: 9998
             }
         },
