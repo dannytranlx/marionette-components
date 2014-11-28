@@ -15,7 +15,7 @@
             require('backbone.marionette'),
             require('./modal-no-footer'),
             require('./views/modal-view'),
-            require('./view/modal-buttons-footer-view'),
+            require('./views/modal-buttons-footer-view'),
             require('../../utils/errors')
         );
     }
@@ -33,7 +33,8 @@
 
             _.bindAll(this,
                 'onPrimaryClick',
-                'onSecondaryClick'
+                'onSecondaryClick',
+                'onTertiaryClick'
             );
         },
 
@@ -48,7 +49,8 @@
         },
 
         buildFooterView: function() {
-            var view = this.footerViewInstance;
+            var view = this.footerViewInstance || Marionette.getOption(this, 'footerViewInstance');
+
             if (!view) {
                 var footerViewOptions = Marionette.getOption(this, 'footerViewOptions');
                 if (_.isFunction(footerViewOptions)) {
@@ -58,8 +60,9 @@
                 var FooterView = this.getFooterView();
 
                 view = new FooterView(footerViewOptions);
-                this.bindFooterViewEvents(view);
+                this.footerViewInstance = view;
             }
+            this.bindFooterViewEvents(view);
 
 
             return view;
@@ -70,11 +73,24 @@
             var secondaryClickFunction = Marionette.getOption(this, 'onSecondaryClick');
             var hasSecondary = Marionette.getOption(view, 'hasSecondary');
 
-            view.on('modal:primary-click', primaryClickFunction);
+            this.listenTo(view, 'modal:primary-click', primaryClickFunction);
 
             if (hasSecondary) {
-                view.on('modal:secondary-click', secondaryClickFunction);
+                this.listenTo(view, 'modal:secondary-click', secondaryClickFunction);
             }
+        },
+
+        swapFooterView: function(view) {
+            this.stopListening('modal:primary-click');
+            this.stopListening('modal:secondary-click');
+
+            this.footerViewInstance = view;
+            this.bindFooterViewEvents(view);
+            this.modalViewInstance.footer.show(view);
+        },
+
+        hideFooterView: function() {
+            this.modalViewInstance.footer.reset();
         },
 
         onPrimaryClick: function() {},
@@ -83,14 +99,24 @@
             this.hide();
         },
 
-        renderModal: function() {
-            var modalView = ModalNoFooter.prototype.renderModal.call(this);
-            modalView.on('render', _.bind(function() {
-                this.footerViewInstance = this.buildFooterView();
-                modalView.footer.show(this.footerViewInstance);
-            }, this));
+        onTertiaryClick: function() {},
 
-            return modalView;
+        renderModal: function() {
+            if (!this.modalViewInstance) {
+                this.modalViewInstance = ModalNoFooter.prototype.renderModal.call(this);
+                this.modalViewInstance.on('render', _.bind(function() {
+                    this.footerViewInstance = this.buildFooterView();
+                    this.modalViewInstance.footer.show(this.footerViewInstance);
+                }, this));
+            }
+
+            return this.modalViewInstance;
         },
+
+        focusPrimary: function() {
+            if (this.footerViewInstance) {
+                this.footerViewInstance.ui.primaryAction.focus();
+            }
+        }
     });
 });

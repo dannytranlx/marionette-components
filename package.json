@@ -1,6 +1,7 @@
 {
   "name": "marionette-components",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "main": "js/marionette-components.js",
   "author": "",
   "license": "MIT",
   "devDependencies": {
@@ -34,9 +35,7 @@
     "mocha": "^2.0.1",
     "requirejs": "^2.1.15",
     "sinon": "^1.11.1",
-    "time-grunt": "0.3.1"
-  },
-  "dependencies": {
+    "time-grunt": "0.3.1",
     "karma-notify-send-reporter": "0.0.2"
   }
 }

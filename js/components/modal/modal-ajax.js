@@ -3,7 +3,7 @@
         define(['./modal-ajax-no-footer', './modal'], factory);
     } else if (typeof exports === "object") {
         module.exports = factory(
-            require('.modal-ajax-no-footer'),
+            require('./modal-ajax-no-footer'),
             require('./modal')
         );
     }

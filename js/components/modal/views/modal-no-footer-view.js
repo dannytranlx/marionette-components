@@ -11,20 +11,20 @@
     }
 })(this, function(_, $, Marionette, ModalNoFooterTemplate) {
 
-    return Marionette.Layout.extend({
+    return Marionette.LayoutView.extend({
         template: ModalNoFooterTemplate,
 
-        tagName: 'aside',
+        tagName: 'div',
 
-        className: 'mc-modal',
+        className: 'modal fade',
 
-        regions: {
+        regions:  {
             header: 'header',
-            content: 'section'
+            content: '.modal-body'
         },
 
         ui: {
-            closeButton: '.mc-close-button'
+            closeButton: 'button[data-dismiss]'
         },
 
         events: {
@@ -39,7 +39,7 @@
                 'onModalBackdropClick'
             );
 
-            this.backdrop = $('<div class="mc-modal-backdrop" />');
+            this.backdrop = $('<div class="modal-backdrop fade" />');
 
             this.on('modal:shown', this.onShown);
             this.on('modal:hidden', this.onHidden);
@@ -50,6 +50,7 @@
 
         show: function() {
             this.$el
+                .addClass('in')
                 .attr('aria-hidden', false);
 
             this.$el
@@ -58,18 +59,19 @@
 
             this.$el.before(this.backdrop);
 
-            this.backdrop.on('click', this.onModalBackdropClick);
-
-            this.center();
+            this.listenTo(this.backdrop, 'click', this.onModalBackdropClick);
+            this.backdrop.addClass('in')
 
             this.trigger('modal:shown');
         },
 
         hide: function() {
             this.$el
+                .removeClass('in')
                 .attr('aria-hidden', true)
                 .hide();
 
+            this.backdrop.removeClass('in');
             this.backdrop.off('click', this.onModalBackdropClick);
 
             this.backdrop.remove();
@@ -78,24 +80,17 @@
         },
 
         onCloseButtonClick: function(event) {
-            this.hide();
-
             event.preventDefault();
             event.stopPropagation();
+
+            this.hide();
         },
 
         onModalBackdropClick: function(event) {
-            this.hide();
-
             event.preventDefault();
             event.stopPropagation();
-        },
 
-        /**
-         * Centers the modal in the page
-         */
-        center: function() {
-            this.$el.css('margin-left', this.$el.width() / 2 * -1);
-        },
+            this.hide();
+        }
     });
 });

@@ -13,11 +13,16 @@
 
     return ModalNoFooterView.extend({
         template: ModalTemplate,
+        className: 'modal',
 
         regions:  {
             header: 'header',
-            content: 'section',
-            footer: 'footer'
+            content: '.modal-body',
+            footer: '.modal-footer'
+        },
+
+        initialize: function(options) {
+            ModalNoFooterView.prototype.initialize.call(this, options);
         }
     });
 });

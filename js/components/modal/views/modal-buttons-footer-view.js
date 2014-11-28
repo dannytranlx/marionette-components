@@ -10,16 +10,19 @@
     }
 })(this, function(_, Marionette, ModalButtonsFooterTemplate) {
     return Marionette.ItemView.extend({
+        getOption: Marionette.proxyGetOption,
         template: ModalButtonsFooterTemplate,
 
         ui: {
             primaryAction: '[data-primary]',
             secondaryAction: '[data-secondary]',
+            tertiaryAction: '[data-tertiary]'
         },
 
-        triggers:  {
-            'click @ui.primaryAction': 'modal:primary-click',
-            'click @ui.secondaryAction': 'modal:secondary-click'
+        triggers: {
+            'click @ui.primaryAction' : 'modal:primary-click',
+            'click @ui.secondaryAction' : 'modal:secondary-click',
+            'click @ui.tertiaryAction' : 'modal:tertiary-click'
         },
 
         primaryActionText: 'OK',
@@ -28,8 +31,12 @@
         secondaryActionText: 'Close',
         secondaryTagName: 'button',
         secondaryClassName: 'btn',
+        tertiaryActionText: 'Action',
+        tertiaryTagName: 'button',
+        tertiaryClassName: 'btn',
         primaryFirst: false,
         hasSecondary: true,
+        hasTertiary: false,
 
 
         serializeData: function() {
@@ -40,8 +47,12 @@
                 secondaryActionText: this.getOption('secondaryActionText'),
                 secondaryTagName: this.getOption('secondaryTagName'),
                 secondaryClassName: this.getOption('secondaryClassName'),
+                tertiaryActionText: this.getOption('tertiaryActionText'),
+                tertiaryTagName: this.getOption('tertiaryTagName'),
+                tertiaryClassName: this.getOption('tertiaryClassName'),
                 primaryFirst: this.getOption('primaryFirst'),
-                hasSecondary: this.getOption('hasSecondary')
+                hasSecondary: this.getOption('hasSecondary'),
+                hasTertiary: this.getOption('hasTertiary')
             };
         }
     });

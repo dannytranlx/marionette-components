@@ -1,11 +1,17 @@
 {{#if primaryFirst}}
-    <{{primaryTagName}}{{#if primaryClassName}} class="{{primaryClassName}}"{{/if}} data-primary>{{primaryActionText}}</{{primaryTagName}}>
+    <{{primaryTagName}} autofocus {{#if primaryClassName}}  class="{{primaryClassName}}"{{/if}} data-primary>{{primaryActionText}}</{{primaryTagName}}>
     {{#if hasSecondary}}
         <{{secondaryTagName}}{{#if secondaryClassName}} class="{{secondaryClassName}}"{{/if}} data-secondary>{{secondaryActionText}}</{{secondaryTagName}}>
+    {{/if}}
+    {{#if hasTertiary}}
+        <{{tertiaryTagName}}{{#if tertiaryClassName}} class="{{tertiaryClassName}}"{{/if}} data-tertiary>{{tertiaryActionText}}</{{tertiaryTagName}}>
     {{/if}}
 {{ else }}
+    {{#if hasTertiary}}
+        <{{tertiaryTagName}}{{#if tertiaryClassName}} class="{{tertiaryClassName}}"{{/if}} data-tertiary>{{tertiaryActionText}}</{{tertiaryTagName}}>
+    {{/if}}
     {{#if hasSecondary}}
         <{{secondaryTagName}}{{#if secondaryClassName}} class="{{secondaryClassName}}"{{/if}} data-secondary>{{secondaryActionText}}</{{secondaryTagName}}>
     {{/if}}
-    <{{primaryTagName}}{{#if primaryClassName}} class="{{primaryClassName}}"{{/if}} data-primary>{{primaryActionText}}</{{primaryTagName}}>
+    <{{primaryTagName}} autofocus {{#if primaryClassName}} class="{{primaryClassName}}"{{/if}} data-primary>{{primaryActionText}}</{{primaryTagName}}>
 {{/if}}

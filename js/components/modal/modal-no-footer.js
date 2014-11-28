@@ -22,9 +22,8 @@
     }
 })(this, function($, _, Marionette, ModalNoFooterView, ModalHeaderView, ModalHtmlContentView, ErrorsUtils) {
 
-    return Marionette.Controller.extend({
-
-        closeOnHidden: true,
+     return Marionette.Controller.extend({
+        destroyOnHidden: true,
 
         container: 'body',
 
@@ -47,18 +46,17 @@
         },
 
         getContainer: function() {
-            var container = Marionette.getOption(this, 'container');
+            var container = this.getOption('container');
 
             if (!container) {
-                ErrorsUtils.throwError('A `container` must be specified',
-                    'NoContainerError');
+                ErrorsUtils.throwError('A `container` must be specified', 'NoContainerError');
             }
 
             return $(container);
         },
 
         getModalView: function() {
-            var modalView = Marionette.getOption(this, 'modalView');
+            var modalView = this.getOption('modalView');
 
             if (!modalView) {
                 ErrorsUtils.throwError('A `modalView` must be specified', 'NoModalViewError');
@@ -68,10 +66,10 @@
         },
 
         buildModalView: function() {
-            var view = this.modalViewInstance;
+            var view = this.modalViewInstance || this.getOption('modalViewInstance');
 
             if (!view) {
-                var modalViewOptions = Marionette.getOption(this, 'modalViewOptions') || {};
+                var modalViewOptions = this.getOption('modalViewOptions') || {};
 
                 if (_.isFunction(modalViewOptions)) {
                     modalViewOptions = modalViewOptions.call(this);
@@ -87,7 +85,7 @@
         },
 
         getHeaderView: function() {
-            var headerView = Marionette.getOption(this, 'headerView');
+            var headerView = this.getOption('headerView');
 
             if (!headerView) {
                 ErrorsUtils.throwError('A `headerView` must be specified', 'NoHeaderViewError');
@@ -97,10 +95,10 @@
         },
 
         buildHeaderView: function() {
-            var view = this.headerViewInstance;
+            var view = this.headerViewInstance || this.getOption('headerViewInstance');
 
             if (!view) {
-                var headerViewOptions = Marionette.getOption(this, 'headerViewOptions');
+                var headerViewOptions = this.getOption('headerViewOptions');
 
                 if (_.isFunction(headerViewOptions)) {
                     headerViewOptions = headerViewOptions.call(this);
@@ -115,8 +113,13 @@
             return view;
         },
 
+        swapHeaderView: function(view) {
+            this.headerViewInstance = view;
+            this.modalViewInstance.header.show(view);
+        },
+
         getContentView: function() {
-            var contentView = Marionette.getOption(this, 'contentView');
+            var contentView = this.getOption('contentView');
 
             if (!contentView) {
                 ErrorsUtils.throwError('A `contentView` must be specified', 'NoContentViewError');
@@ -126,10 +129,10 @@
         },
 
         buildContentView: function() {
-            var view = this.contentViewInstance;
+            var view = this.contentViewInstance || this.getOption('contentViewInstance');
 
             if (!view) {
-                var contentViewOptions = Marionette.getOption(this, 'contentViewOptions');
+                var contentViewOptions = this.getOption('contentViewOptions');
 
                 if (_.isFunction(contentViewOptions)) {
                     contentViewOptions = contentViewOptions.call(this);
@@ -145,15 +148,23 @@
             return view;
         },
 
-        bindModalViewEvents: function(view) {
-            var closeOnHidden = Marionette.getOption(this, 'closeOnHidden');
+        swapContentView: function(view) {
+            this.contentViewInstance = view;
+            this.modalViewInstance.content.show(view);
+        },
 
-            if (closeOnHidden) {
-                view.on('modal:hidden', _.bind(this.closeModalOnHide, this));
+        bindModalViewEvents: function(view) {
+            var destroyOnHidden = this.getOption('destroyOnHidden');
+
+            if (destroyOnHidden) {
+                view.on('modal:hidden', _.bind(this.destroyModalOnHide, this));
             }
 
-            view.on('modal:hidden', _.bind(this.onModalHidden, this));
-            view.on('modal:shown', _.bind(this.onModalShown, this));
+            var modalHiddenCallback = this.getOption('onModalHidden');
+            var modalShownCallback = this.getOption('onModalShown');
+
+            this.listenTo(view, 'modal:hidden', modalHiddenCallback);
+            this.listenTo(view, 'modal:shown', modalShownCallback);
         },
 
         bindHeaderViewEvents: function() {},
@@ -166,9 +177,9 @@
             }
         },
 
-        closeModalOnHide: function() {
-            this.modalViewInstance.close();
-            this.close();
+        destroyModalOnHide: function() {
+            this.modalViewInstance.destroy();
+            this.destroy();
         },
 
         onModalHidden: function() {},
