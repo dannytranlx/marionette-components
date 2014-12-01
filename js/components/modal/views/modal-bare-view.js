@@ -53,10 +53,11 @@
                 .show()
                 .scrollTop(0);
 
-            this.$el.before(this.backdrop);
+            this.$el.prepend(this.backdrop);
 
-            this.listenTo(this.backdrop, 'click', this.onModalBackdropClick);
-            this.backdrop.addClass('in')
+            this.backdrop.on('click', this.onModalBackdropClick);
+
+            this.backdrop.addClass('in');
 
             this.triggerMethod('modal:shown', this);
         },
@@ -68,7 +69,7 @@
                 .hide();
 
             this.backdrop.removeClass('in');
-            this.stopListening(this.backdrop);
+            this.backdrop.off('click', this.onModalBackdropClick);
 
             this.backdrop.remove();
 
