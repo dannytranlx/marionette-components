@@ -69,9 +69,8 @@
                 .hide();
 
             this.backdrop.removeClass('in');
-            this.backdrop.off('click', this.onModalBackdropClick);
 
-            this.backdrop.remove();
+            this.backdrop.off().remove();
 
             this.triggerMethod('modal:hidden', this);
         },
