@@ -18,6 +18,8 @@
 
         className: 'modal fade',
 
+        transitionDuration: 300,
+
         regions:  {
             content: '[data-region-content]'
         },
@@ -45,19 +47,18 @@
         onModalHidden: function() {},
 
         show: function() {
-            this.$el
-                .addClass('in')
-                .attr('aria-hidden', false);
+            this.$el.prepend(this.backdrop);
+            this.backdrop.on('click', this.onModalBackdropClick);
 
             this.$el
                 .show()
                 .scrollTop(0);
 
-            this.$el.prepend(this.backdrop);
-
-            this.backdrop.on('click', this.onModalBackdropClick);
-
             this.backdrop.addClass('in');
+
+            this.$el
+                .addClass('in')
+                .attr('aria-hidden', false);
 
             this.triggerMethod('modal:shown', this);
         },
@@ -65,14 +66,16 @@
         hide: function() {
             this.$el
                 .removeClass('in')
-                .attr('aria-hidden', true)
-                .hide();
+                .attr('aria-hidden', true);
 
             this.backdrop.removeClass('in');
 
-            this.backdrop.off().remove();
-
-            this.triggerMethod('modal:hidden', this);
+            // this is needed to wait for the fade animation to be done
+            setTimeout(function() {
+                this.backdrop.off().remove();
+                this.$el.hide();
+                this.triggerMethod('modal:hidden', this);
+            }.bind(this), this.getOption('transitionDuration'));
         },
 
         onCloseButtonClick: function(event) {

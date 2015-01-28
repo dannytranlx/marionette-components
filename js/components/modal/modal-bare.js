@@ -25,8 +25,14 @@
 
         container: 'body',
 
+        transitionDuration: 300,
+
         modalView: ModalBareView,
-        modalViewOptions: {},
+        modalViewOptions: function () {
+            return {
+                transitionDuration: this.getOption('transitionDuration')
+            };
+        },
 
         contentView: ModalHtmlContentView,
         contentViewOptions: {},
