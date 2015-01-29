@@ -20,7 +20,7 @@
 
         transitionDuration: 300,
 
-        regions:  {
+        regions: {
             content: '[data-region-content]'
         },
 
