@@ -3,8 +3,6 @@
         define([
             './components/modal/modal',
             './components/modal/modal-no-footer',
-            './components/modal/modal-ajax',
-            './components/modal/modal-ajax-no-footer',
             './components/modal/views/modal-no-footer-view',
             './components/modal/views/modal-view',
             './components/modal/views/modal-header-view',
@@ -14,8 +12,6 @@
         module.exports = factory(
             require('./components/modal/modal'),
             require('./components/modal/modal-no-footer'),
-            require('./components/modal/modal-ajax'),
-            require('./components/modal/modal-ajax-no-footer'),
             require('./components/modal/views/modal-no-footer-view'),
             require('./components/modal/views/modal-view'),
             require('./components/modal/views/modal-header-view'),
@@ -25,8 +21,6 @@
 })(this, function(
     Modal,
     ModalNoFooter,
-    ModalAjax,
-    ModalAjaxNoFooter,
     ModalNoFooterView,
     ModalView,
     ModalHeaderView,
@@ -35,8 +29,6 @@
     return {
         Modal: Modal,
         ModalNoFooter: ModalNoFooter,
-        ModalAjax: ModalAjax,
-        ModalAjaxNoFooter: ModalAjaxNoFooter,
         ModalNoFooterView: ModalNoFooterView,
         ModalView: ModalView,
         ModalHeaderView: ModalHeaderView,
