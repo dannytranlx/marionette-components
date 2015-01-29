@@ -27,10 +27,13 @@
 
         transitionDuration: 300,
 
+        hideOnBackdropClick: true,
+
         modalView: ModalBareView,
         modalViewOptions: function () {
             return {
-                transitionDuration: this.getOption('transitionDuration')
+                transitionDuration: this.getOption('transitionDuration'),
+                hideOnBackdropClick: this.getOption('hideOnBackdropClick')
             };
         },
 

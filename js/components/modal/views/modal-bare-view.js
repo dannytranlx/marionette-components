@@ -19,6 +19,7 @@
         className: 'modal fade',
 
         transitionDuration: 300,
+        hideOnBackdropClick: true,
 
         regions: {
             content: '[data-region-content]'
@@ -83,13 +84,18 @@
             event.stopPropagation();
 
             this.hide();
+
+            this.trigger('close:clicked');
         },
 
         onModalBackdropClick: function(event) {
             event.preventDefault();
             event.stopPropagation();
+            if(this.getOption('hideOnBackdropClick')){
+                this.hide();
+            }
 
-            this.hide();
+            this.trigger('backdrop:clicked');
         }
     });
 });
