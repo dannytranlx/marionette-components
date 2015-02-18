@@ -49,12 +49,31 @@
         viewEvents: {},
 
         /**
+         * Events triggered by the view that will bubble up higher instead of being
+         * handled by the current controller.
+         * Can be a function.
+         * Can be overriden by options at instantiation.
+         * @type {Object}
+         *
+         * @example
+         *
+         * // Most of the time, you might keep the same trigger name, but you can
+         * // change it if necessary
+         * viewTriggers: {
+         *   'model:save': 'model:save',
+         *   'model:delete': 'model:delete'
+         * }
+         */
+
+        viewTriggers: {},
+
+        /**
          * Determines if the controller is destroyed when the view is.
          * Cannot be a function.
          * Can be overriden by options at instantiation.
          * @type {Boolean}
          */
-        isDestroyedWithView: false,
+        isDestroyedWithView: true,
 
         getViewClass: function() {
             return this.getOption('viewClass');
@@ -80,12 +99,23 @@
             return events || {};
         },
 
+        getViewTriggers: function() {
+            var triggers = this.getOption('viewTriggers');
+
+            if (_.isFunction(triggers)) {
+                triggers = triggers.call(this);
+            }
+
+            return triggers || {};
+        },
+
         buildView: function() {
             var viewOptions = this.getViewOptions();
             var ViewClass = this.getViewClass();
 
             var view = new ViewClass(viewOptions);
             this.bindEvents(view);
+            this.bindTriggers(view);
 
             return view;
         },
@@ -102,6 +132,28 @@
         },
 
         onBindEvents: function( /*view*/ ) {},
+
+        bindTriggers: function(view) {
+            this.viewTriggers = this.getViewTriggers();
+
+            _.each(this.viewTriggers, function(value, key) {
+                this._buildTrigger(view, key, value);
+            }, this);
+
+            // replace onBindTriggers if it came from the options
+            this.onBindTriggers = this.getOption('onBindTriggers');
+
+            // this triggers the `'bind:triggers'` event and calls `onBindTriggers`
+            this.triggerMethod('bind:triggers', view);
+        },
+
+        onBindTriggers: function( /*view*/ ) {},
+
+        _buildTrigger: function(view, eventName, triggerName) {
+            this.listenTo(view, eventName, function() {
+                this.trigger.apply(this, _.union([triggerName], _.toArray(arguments)));
+            }.bind(this));
+        },
 
         getView: function() {
             if (!this.view || this.view.isDestroyed) {

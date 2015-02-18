@@ -321,6 +321,7 @@ module.exports = function(grunt) {
     // Full distribution task.
     grunt.registerTask('dist', ['clean', 'dist-css', 'dist-js', 'copy:docs', 'dist-doc-js', 'jekyll']);
 
+    grunt.registerTask('test', ['karma']);
     // Default task.
     grunt.registerTask('default', ['test', 'dist']);
 

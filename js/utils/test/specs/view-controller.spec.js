@@ -10,7 +10,9 @@
 
         describe('Controller definition using extend', function() {
             var onBindEventsSpy = sinon.spy();
+            var onBindTriggersSpy = sinon.spy();
             var viewEventBindingSpy = sinon.spy();
+
             var Controller = ViewController.extend({
                 viewClass: Marionette.LayoutView,
                 viewOptions: {
@@ -18,15 +20,21 @@
                 },
 
                 viewEvents: {
-                    'trigger:event': 'triggerEventBinding'
+                    'view:event': 'triggerEventBinding'
+                },
+
+                viewTriggers: {
+                    'view:trigger': 'view:trigger'
                 },
 
                 onBindEvents: onBindEventsSpy,
+                onBindTriggers: onBindTriggersSpy,
                 triggerEventBinding: viewEventBindingSpy
             });
 
             afterEach(function() {
                 onBindEventsSpy.reset();
+                onBindTriggersSpy.reset();
                 viewEventBindingSpy.reset();
             });
 
@@ -79,7 +87,7 @@
                 });
 
                 it('should call the function defined in the view events definition', function() {
-                    view.trigger('trigger:event');
+                    view.trigger('view:event');
                     viewEventBindingSpy.should.have.been.calledOnce;
                 });
             });
@@ -103,6 +111,52 @@
                     var view = controllerInstance.getView();
                     onBindEventsSpy.should.have.been.calledOnce;
                     onBindEventsTriggerSpy.should.have.been.calledOnce;
+                });
+            });
+
+            describe('#viewTriggers', function() {
+                var controllerInstance,
+                    view,
+                    controllerTriggerSpy = sinon.spy();
+
+                beforeEach(function() {
+                    controllerInstance = new Controller();
+                    controllerInstance.on('trigger:event', controllerTriggerSpy);
+                    view = controllerInstance.getView();
+                });
+
+                afterEach(function() {
+                    onBindTriggersSpy.reset();
+                    controllerTriggerSpy.reset();
+                    controllerInstance.destroy();
+
+                });
+
+                it('should call the function defined in the view events definition', function() {
+                    view.trigger('view:trigger');
+                    controllerTriggerSpy.should.have.been.calledOnce;
+                });
+            });
+
+            describe('#onBindTriggers', function() {
+                var controllerInstance,
+                    onBindTriggersTriggerSpy = sinon.spy();
+
+                beforeEach(function() {
+                    controllerInstance = new Controller();
+                    controllerInstance.on('bind:triggers', onBindTriggersTriggerSpy);
+                });
+
+                afterEach(function() {
+                    controllerInstance.destroy();
+                    onBindTriggersSpy.reset();
+                    onBindTriggersTriggerSpy.reset();
+                });
+
+                it('should trigger default bindTriggers', function() {
+                    var view = controllerInstance.getView();
+                    onBindEventsSpy.should.have.been.calledOnce;
+                    onBindTriggersTriggerSpy.should.have.been.calledOnce;
                 });
             });
 
