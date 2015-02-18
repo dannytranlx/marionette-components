@@ -1,6 +1,9 @@
 #marionette-components
 
 ##Changelog
+###0.0.9
+- Added ViewController
+
 ###0.0.8
 - Removed a hidden character from source code
 - Hide on modal backdrop click is now optional (but true by default) 
